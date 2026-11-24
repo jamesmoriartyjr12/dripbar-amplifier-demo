@@ -56,7 +56,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     kind: "drip",
     price: "$224",
     priceNote: "Local list price",
-    blurb: "Our fuller IV option with added vitamins.",
+    blurb: "A fuller IV option your clinician walks you through.",
     url: "https://huntington-beach.thedripbar.com/services-menu/",
   },
   evolve: {

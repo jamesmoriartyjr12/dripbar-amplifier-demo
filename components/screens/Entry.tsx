@@ -64,6 +64,23 @@ export function Landing({ dispatch }: Props) {
           <p className="small">Pick a time now. You don&apos;t need to choose a drip yet.</p>
         </div>
       ) : (
+        <ol className="how" aria-label="How it works">
+          <li>
+            <b>1</b>
+            <span>A quick safety check</span>
+          </li>
+          <li>
+            <b>2</b>
+            <span>Tell us how you feel in about 20 seconds</span>
+          </li>
+          <li>
+            <b>3</b>
+            <span>See options a clinician confirms at your visit</span>
+          </li>
+        </ol>
+      )}
+
+      {showTimes ? null : (
         <div className="actions">
           <button type="button" className="btn btn-primary btn-block" onClick={() => setShowTimes(true)}>
             Check today&apos;s times

@@ -27,10 +27,28 @@ export function checkPresenterAccess(request: Request, env: Env = process.env): 
       ? { ok: true }
       : { ok: false, httpStatus: 403, message: "Presenter key required for live analysis." };
   }
-  const host = new URL(request.url).hostname;
-  return LOCAL_HOSTS.has(host)
+  return isLocalRequest(request)
     ? { ok: true }
     : { ok: false, httpStatus: 403, message: "Live analysis is only available on the presenter's machine." };
+}
+
+function hostname(value: string): string {
+  try {
+    return new URL(`http://${value}`).hostname;
+  } catch {
+    return "";
+  }
+}
+
+const LOOPBACK_IPS = /^(127\.|::1$|::ffff:127\.)/;
+
+function isLocalRequest(request: Request): boolean {
+  const headers = request.headers;
+  const host = headers.get("x-forwarded-host") ?? headers.get("host") ?? new URL(request.url).host;
+  if (!LOCAL_HOSTS.has(hostname(host.split(",")[0].trim()))) return false;
+  const forwardedFor = headers.get("x-forwarded-for");
+  if (!forwardedFor) return true;
+  return forwardedFor.split(",").every((ip) => LOOPBACK_IPS.test(ip.trim()));
 }
 
 interface Window {

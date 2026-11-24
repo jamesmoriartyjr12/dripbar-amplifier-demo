@@ -103,6 +103,12 @@ describe("route handlers", () => {
   it("requires presenter access: localhost only unless a presenter key is set", () => {
     expect(checkPresenterAccess(new Request("http://localhost:3000/x"), {}).ok).toBe(true);
     expect(checkPresenterAccess(new Request("https://demo.example.com/x"), {}).ok).toBe(false);
+    const spoofed = new Request("http://localhost:3000/x", { headers: { host: "demo.example.com" } });
+    expect(checkPresenterAccess(spoofed, {}).ok).toBe(false);
+    const proxied = new Request("http://localhost:3000/x", { headers: { host: "localhost:3000", "x-forwarded-for": "203.0.113.9" } });
+    expect(checkPresenterAccess(proxied, {}).ok).toBe(false);
+    const local = new Request("http://localhost:3000/x", { headers: { host: "localhost:3000", "x-forwarded-for": "::1" } });
+    expect(checkPresenterAccess(local, {}).ok).toBe(true);
     const keyed = { DEMO_PRESENTER_KEY: "sunday" };
     expect(checkPresenterAccess(new Request("https://demo.example.com/x"), keyed).ok).toBe(false);
     expect(

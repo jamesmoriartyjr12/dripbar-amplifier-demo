@@ -98,7 +98,7 @@ export const SAMPLE_TRANSCRIPTS = {
 } as const;
 
 /** Sample playback runs faster than real time so the walkthrough stays inside three minutes. */
-export const SAMPLE_CLIP_SECONDS = 20;
+export const SAMPLE_CLIP_SECONDS = 22;
 export const SAMPLE_PLAYBACK_MS = 5000;
-export const LIVE_CLIP_SECONDS = 20;
+export const LIVE_CLIP_SECONDS = 22;
 export const LIVE_MIN_SECONDS = 15;

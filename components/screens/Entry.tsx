@@ -71,7 +71,7 @@ export function Landing({ dispatch }: Props) {
           </li>
           <li>
             <b>2</b>
-            <span>Tap to talk: tell us how you feel in about 20 seconds</span>
+            <span>Tap to talk: tell us how you feel in about 22 seconds</span>
           </li>
           <li>
             <b>3</b>

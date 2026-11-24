@@ -25,7 +25,7 @@ export function Intake({ state, dispatch }: Props) {
       <ScreenHead onBack={() => dispatch({ type: "back" })} step="Step 2 of 4" />
       <p className="eyebrow">How you&apos;re feeling</p>
       <Heading>Tell us how you&apos;re feeling this morning</Heading>
-      <p className="lede">Talk for about 20 seconds, like you&apos;d tell a friend. It helps us pick your next question.</p>
+      <p className="lede">Talk for about 22 seconds, like you&apos;d tell a friend. It helps us pick your next question.</p>
       <button
         type="button"
         className="talk-button"
@@ -38,7 +38,7 @@ export function Intake({ state, dispatch }: Props) {
         </span>
       </button>
       <p id="talk-hint" className="talk-hint">
-        {state.liveEnabled ? "About 20 seconds. We'll ask before the microphone turns on." : "About 20 seconds. We'll ask first, and the audio is discarded afterward."}
+        {state.liveEnabled ? "About 22 seconds. We'll ask before the microphone turns on." : "About 22 seconds. We'll ask first, and the audio is discarded afterward."}
       </p>
       <div className="secondary-options" role="group" aria-label="Other ways to answer">
         <button type="button" className="btn btn-ghost btn-small" onClick={() => dispatch({ type: "startSample" })}>
@@ -59,7 +59,7 @@ export function Consent({ state, dispatch }: Props) {
       <p className="eyebrow">Before we record</p>
       <Heading>Is it okay to use your microphone?</Heading>
       <div className="card stack" style={{ gap: 10 }}>
-        <p style={{ margin: 0 }}>When you continue, we&apos;ll record about 20 seconds of your voice.</p>
+        <p style={{ margin: 0 }}>When you continue, we&apos;ll record about 22 seconds of your voice.</p>
         {state.liveEnabled ? (
           <p style={{ margin: 0 }}>
             The recording is sent to our technology partner, Amplifier Health, for a voice analysis that helps choose

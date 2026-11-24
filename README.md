@@ -2,7 +2,7 @@
 
 A mobile-first web demo of the journey a customer takes after tapping a Sunday-morning Facebook ad: a quick safety check, a voice (or typed) check-in, one better follow-up question, products recommended for them that a clinician confirms at the visit, and a simulated booking.
 
-It opens in **demo mode**, which needs no credentials. **Tap to talk** asks for consent, then records about 20 seconds from the real microphone, with a live timer and a waveform driven by the mic level. The audio never leaves the device and is discarded when recording stops, and the result shown is labeled as simulated. If there's no microphone or permission is denied, the same recording screen plays with a simulated waveform, labeled as such. **Use demo sample** and **Type instead** remain as secondary options. Appointments, prices shown as local list prices, and the booking are all labeled as samples or simulated.
+It opens in **demo mode**, which needs no credentials. **Tap to talk** asks for consent, then records about 22 seconds from the real microphone, with a live timer and a waveform driven by the mic level. The audio never leaves the device and is discarded when recording stops, and the result shown is labeled as simulated. If there's no microphone or permission is denied, the same recording screen plays with a simulated waveform, labeled as such. **Use demo sample** and **Type instead** remain as secondary options. Appointments, prices shown as local list prices, and the booking are all labeled as samples or simulated.
 
 ## Run it
 
@@ -48,13 +48,15 @@ Customer copy never names a sign or says the voice found anything. Recommendatio
 
 ## Optional: live Amplifier analysis
 
-1. Copy `.env.example` to `.env.local` and set `AMPLIFIER_ACCOUNT_ID` and `AMPLIFIER_API_KEY` (server-only).
+**Verified with real credentials (Nov 23, 2026).** All five signs returned completed results from the real API, and the adapter matched its requests, job statuses, result fields and error bodies with no changes. The in-app live journey also ran end to end: consent, recording, polling, then the promoted question tagged Live analysis.
+
+1. Copy `.env.example` to `.env.local` and set **both** `AMPLIFIER_ACCOUNT_ID` and `AMPLIFIER_API_KEY` (server-only). Amplifier requires the `X-Account-ID` header on every request, so with only the key set the API returns 401 and the app keeps live mode off.
 2. Restart `npm run dev` and open `http://localhost:3000/?live=1`. The badge switches to **Live analysis on**, and **Tap to talk** sends the recording to Amplifier instead of showing the simulated result.
 3. The customer sees a consent screen before the microphone opens or any audio leaves the device.
 
 How it works:
 
-- The browser records about 20 seconds (15 seconds minimum), encodes mono 16 kHz WAV, then stops the microphone and drops the samples.
+- The browser records 22 seconds (15 seconds minimum), so a full clip clears Amplifier's 20-second recommended minimum after encoding. It encodes mono 16 kHz WAV, then stops the microphone and drops the samples.
 - `POST /api/amplifier/analyze` forwards the file as multipart `audio` to `POST /v2/signs/{sign}/analyze`, with `X-Account-ID` and `X-API-Key` added on the server.
 - The browser polls `GET /api/amplifier/jobs/{id}` (a proxy for `GET /v2/jobs/{job_id}`) every 3 seconds and gives up after 45 seconds.
 - The server reads `result.signal.level` and `result.audio_quality.issues`. It returns only an interpreted outcome, never raw scores or narratives. Audio and payloads are not logged.

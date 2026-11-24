@@ -108,6 +108,25 @@ export const Keyboard = () => (
   </svg>
 );
 
+export const Mic = () => (
+  <svg {...iconProps}>
+    <rect x="9" y="3" width="6" height="11" rx="3" />
+    <path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" />
+  </svg>
+);
+
+export const Play = () => (
+  <svg {...iconProps}>
+    <path d="M8 5.5v13l10.5-6.5z" />
+  </svg>
+);
+
+export const Stop = () => (
+  <svg {...iconProps}>
+    <rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" />
+  </svg>
+);
+
 export const Stethoscope = () => (
   <svg {...iconProps}>
     <path d="M6 3v5a4 4 0 008 0V3M10 12v3a5 5 0 0010 0v-1" />

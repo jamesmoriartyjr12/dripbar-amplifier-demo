@@ -2,7 +2,7 @@
 
 A mobile-first web demo of the journey a customer takes after tapping a Sunday-morning Facebook ad: a quick safety check, a voice (or typed) check-in, one better follow-up question, products recommended for them that a clinician confirms at the visit, and a simulated booking.
 
-It opens in **demo mode**: a labeled, simulated voice sample drives the flow, so it needs no credentials and no microphone. Appointments, prices shown as local list prices, and the booking are all labeled as samples or simulated.
+It opens in **demo mode**, which needs no credentials. **Tap to talk** asks for consent, then records about 20 seconds from the real microphone, with a live timer and a waveform driven by the mic level. The audio never leaves the device and is discarded when recording stops, and the result shown is labeled as simulated. If there's no microphone or permission is denied, the same recording screen plays with a simulated waveform, labeled as such. **Use demo sample** and **Type instead** remain as secondary options. Appointments, prices shown as local list prices, and the booking are all labeled as samples or simulated.
 
 ## Run it
 
@@ -49,7 +49,7 @@ Customer copy never names a sign or says the voice found anything. Recommendatio
 ## Optional: live Amplifier analysis
 
 1. Copy `.env.example` to `.env.local` and set `AMPLIFIER_ACCOUNT_ID` and `AMPLIFIER_API_KEY` (server-only).
-2. Restart `npm run dev` and open `http://localhost:3000/?live=1`. The badge switches to **Live analysis on**, and the intake screen adds **Record my voice**.
+2. Restart `npm run dev` and open `http://localhost:3000/?live=1`. The badge switches to **Live analysis on**, and **Tap to talk** sends the recording to Amplifier instead of showing the simulated result.
 3. The customer sees a consent screen before the microphone opens or any audio leaves the device.
 
 How it works:
@@ -71,8 +71,8 @@ Reference: [Quickstart](https://docs.amplifierhealth.com/guides/quickstart/) · 
 Open `http://localhost:3000` (fatigue sample). Hold the phone, or present the laptop's phone frame.
 
 1. **The ad (0:00).** "Sunday morning, someone taps our Facebook ad: *Feeling rough this morning?* They see a real local price, 100% Hydration at $109, subject to clinician assessment." Tap **Check today's times** and pick **11:40 a.m.**, the labeled sample appointment. "They choose a time, not a drip."
-2. **Safety first (0:12).** "Before any recording or selling, four safety questions." Answer Yes, No, No, No and tap **Continue**. *(Optional aside: answering Yes to the last question ends the demo at "In a real emergency, call 911.")*
-3. **Voice check-in (0:22).** "*Tell us how you're feeling this morning*, by voice or by typing." Tap **Use demo sample**. "This is a labeled sample: the timer, waveform and orb show what recording feels like. Then a short thinking state."
+2. **Safety first (0:12).** "Before any recording or selling, four safety questions." Answer Yes, No, No, No and tap **Continue to voice check-in**. *(Optional aside: answering Yes to the last question ends the demo at "In a real emergency, call 911.")*
+3. **Voice check-in (0:22).** "*Tell us how you're feeling this morning*, by voice or by typing." Tap the orb (**Tap to talk**), agree on the consent screen, and speak for a few seconds; the waveform follows your voice. Tap **Stop**. "The audio is discarded on the spot; in demo mode the result is simulated and labeled that way. Then a short thinking state." *(No mic in the room? The same screen plays with a simulated waveform. **Use demo sample** gives the scripted 5-second version.)*
 4. **One better question (0:35).** "The voice result moved one question to the top: *Is low energy one of your main concerns today?* The customer still decides." Tap **Yes**, then thirst **Yes** and nausea **No**. Tap **See my options**.
 5. **Recommended for you (0:48).** "Powerpack ($224) leads because they said low energy is a main concern, with 100% Hydration ($109) next to it. Evolve membership and Oral Supplements appear for between visits. Every option is framed as *a clinician confirms at your visit*." Tap **I'm interested** on Powerpack, then **Book my visit**.
 6. **Booked (1:00).** Tap **Request 11:40 a.m.** "A simulated confirmation, with no appointment or charge. It carries their answers: *Can keep fluids down. Main concerns are thirst and low energy.*"

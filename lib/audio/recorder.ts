@@ -81,7 +81,8 @@ export async function startRecording(): Promise<Recording> {
       analyser.getByteTimeDomainData(levelBuffer);
       let peak = 0;
       for (const value of levelBuffer) peak = Math.max(peak, Math.abs(value - 128));
-      return Math.min(1, peak / 64);
+      // Square-root curve so normal speaking volume fills the waveform; the gate hides idle hiss.
+      return Math.min(1, Math.sqrt(Math.max(0, peak - 1.5) / 48));
     },
     async stop() {
       const sampleRate = audioContext.sampleRate;

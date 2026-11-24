@@ -178,11 +178,14 @@ describe("standard path", () => {
     expect(run([{ type: "setScenario", scenario: "typed" }, ...SAFE]).step).toBe("questions");
   });
 
-  it("live consent is required before capture, and only when live is enabled", () => {
-    expect(run([...SAFE, { type: "startLive" }]).step).toBe("intake");
-    const enabled = run([{ type: "setLiveEnabled", enabled: true }, ...SAFE, { type: "startLive" }]);
-    expect(enabled.step).toBe("consent");
+  it("tap to talk always asks for consent before the microphone opens", () => {
+    const demo = run([...SAFE, { type: "startTalk" }]);
+    expect(demo.step).toBe("consent");
+    expect(reducer(demo, { type: "consentGiven" })).toMatchObject({ step: "capture", captureMode: "mic" });
+    const enabled = run([{ type: "setLiveEnabled", enabled: true }, ...SAFE, { type: "startTalk" }]);
     expect(reducer(enabled, { type: "consentGiven" })).toMatchObject({ step: "capture", captureMode: "live" });
+    expect(run([...SAFE, { type: "consentGiven" }]).step).toBe("intake");
+    expect(run([{ type: "startTalk" }]).step).toBe("landing");
   });
 });
 

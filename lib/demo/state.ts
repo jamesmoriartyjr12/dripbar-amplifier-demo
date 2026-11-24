@@ -26,6 +26,8 @@ export type Step =
   | "booked";
 
 export type Source = "sample" | "live";
+/** "mic" records locally in demo mode, then discards the audio and shows the simulated result. */
+export type CaptureMode = "sample" | "mic" | "live";
 
 export type VoiceRecord =
   | { source: Source; kind: "signal"; sign: SignSlug; level: SignalLevel; issues: string[] }
@@ -47,7 +49,7 @@ export interface DemoState {
   step: Step;
   slot: string | null;
   safety: SafetyAnswers;
-  captureMode: Source;
+  captureMode: CaptureMode;
   typedInstead: boolean;
   voice: VoiceRecord | null;
   answers: {
@@ -138,7 +140,7 @@ export type Action =
   | { type: "setSafety"; field: keyof SafetyAnswers; value: boolean }
   | { type: "submitSafety" }
   | { type: "startSample" }
-  | { type: "startLive" }
+  | { type: "startTalk" }
   | { type: "consentGiven" }
   | { type: "typeInstead" }
   | { type: "voiceResult"; record: VoiceRecord }
@@ -211,10 +213,12 @@ export function reducer(state: DemoState, action: Action): DemoState {
     }
     case "startSample":
       return { ...state, captureMode: "sample", typedInstead: false, voice: null, step: "capture" };
-    case "startLive":
-      return state.liveEnabled ? { ...state, typedInstead: false, voice: null, step: "consent" } : state;
+    case "startTalk":
+      return state.step === "intake" ? { ...state, typedInstead: false, voice: null, step: "consent" } : state;
     case "consentGiven":
-      return state.liveEnabled ? { ...state, captureMode: "live", step: "capture" } : state;
+      return state.step === "consent"
+        ? { ...state, captureMode: state.liveEnabled ? "live" : "mic", step: "capture" }
+        : state;
     case "typeInstead":
       return { ...state, typedInstead: true, voice: null, step: "questions", answers: clearedAnswers(state) };
     case "voiceResult":

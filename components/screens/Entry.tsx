@@ -71,7 +71,7 @@ export function Landing({ dispatch }: Props) {
           </li>
           <li>
             <b>2</b>
-            <span>Tell us how you feel in about 20 seconds</span>
+            <span>Tap to talk: tell us how you feel in about 20 seconds</span>
           </li>
           <li>
             <b>3</b>
@@ -85,6 +85,9 @@ export function Landing({ dispatch }: Props) {
           <button type="button" className="btn btn-primary btn-block" onClick={() => setShowTimes(true)}>
             Check today&apos;s times
           </button>
+          <p className="small" style={{ margin: 0, textAlign: "center" }}>
+            Next: pick a time, a quick safety check, then tap to talk.
+          </p>
         </div>
       )}
     </section>
@@ -130,7 +133,7 @@ export function Safety({ state, dispatch }: Props) {
           disabled={!complete}
           onClick={() => dispatch({ type: "submitSafety" })}
         >
-          Continue
+          {state.scenario === "typed" ? "Continue" : "Continue to voice check-in"}
         </button>
         <p className="small" style={{ margin: 0, textAlign: "center" }}>
           In this demo, your answers stay on this device.

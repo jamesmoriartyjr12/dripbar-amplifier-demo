@@ -881,107 +881,24 @@ a {
     inset 0 -4px 10px rgba(120, 130, 160, 0.08);
 }
 
-/* Iridescent orb: eight translucent ribbons that fold and turn while listening,
-   and a spinning concentric swirl while thinking. */
+/* The core's look comes from the chosen variant in components/orbs/orbs.css. */
 .orb-core {
   position: relative;
-  width: 64px;
-  height: 64px;
-  transform: scale(calc(1 + var(--level) * 0.16));
-  transition: transform 90ms linear;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
 }
 
-.orb-core::before {
-  content: "";
+.orb-core > * {
   position: absolute;
-  inset: 4%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 44% 56%, #ffe08f 0 12%, #ffab5e 24%, #ff7a6e 34%, #ff5fa0 46%, #d860e0 58%, #9a6bff 68%, #7dbbff 77%, rgba(125, 187, 255, 0) 84%);
-  filter: blur(2px);
-  opacity: 0;
-  transition: opacity 400ms ease;
-}
-
-.orb-core::after {
-  content: "";
-  position: absolute;
-  inset: 6%;
-  border-radius: 50%;
-  background: conic-gradient(from 20deg, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.55) 40deg, rgba(255, 255, 255, 0) 90deg, rgba(255, 255, 255, 0) 180deg, rgba(255, 255, 255, 0.4) 220deg, rgba(255, 255, 255, 0) 270deg);
-  mix-blend-mode: soft-light;
-  opacity: 0;
-  transition: opacity 400ms ease;
-}
-
-.orb-core i {
-  --r: 0deg;
-  --x: 0%;
-  --y: 0%;
-  position: absolute;
-  left: 10%;
-  top: 36%;
-  width: 80%;
-  height: 28%;
-  border-radius: 80% 20% 70% 30% / 90% 40% 60% 10%;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0 10%, rgba(255, 255, 255, 0) 38%),
-    linear-gradient(95deg, var(--c1), var(--c2) 60%, var(--c3));
-  opacity: 0.82;
-  filter: blur(0.35px);
-  transform: translate(var(--x), var(--y)) rotate(var(--r));
-  animation: fold 4.8s ease-in-out infinite;
-  transition: opacity 300ms ease;
-}
-
-.orb-core i:nth-child(1) { --r: 0deg; --x: -6%; --y: -14%; --c1: #ffb46e; --c2: #ff5f9a; --c3: #ff9ae0; }
-.orb-core i:nth-child(2) { --r: 24deg; --x: 8%; --y: -20%; --c1: #b56bff; --c2: #ff6fcf; --c3: #ffc0e4; animation-duration: 5.6s; animation-direction: reverse; }
-.orb-core i:nth-child(3) { --r: 52deg; --x: 14%; --y: -4%; --c1: #6ec2ff; --c2: #8f78ff; --c3: #e47cff; animation-duration: 6.2s; }
-.orb-core i:nth-child(4) { --r: 80deg; --x: 4%; --y: 10%; --c1: #ffd27a; --c2: #ff9a5c; --c3: #ff5f9a; animation-duration: 5.2s; animation-direction: reverse; }
-.orb-core i:nth-child(5) { --r: 110deg; --x: -10%; --y: 12%; --c1: #ffd27a; --c2: #ff8a5c; --c3: #ff4f8b; animation-duration: 6.6s; }
-.orb-core i:nth-child(6) { --r: 138deg; --x: -16%; --y: -2%; --c1: #ffc36e; --c2: #ff7a62; --c3: #ff5fa6; animation-duration: 5.9s; animation-direction: reverse; }
-.orb-core i:nth-child(7) { --r: 160deg; --x: 2%; --y: 18%; --c1: #ff9c6a; --c2: #ff5fa6; --c3: #b77bff; animation-duration: 7s; }
-.orb-core i:nth-child(8) { --r: -28deg; --x: 10%; --y: 6%; --c1: #7cc8ff; --c2: #6fa0ff; --c3: #c58bff; animation-duration: 5.4s; animation-direction: reverse; }
-
-@keyframes fold {
-  0%,
-  100% {
-    transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1, 1);
-  }
-  35% {
-    transform: translate(calc(var(--x) * 0.6), calc(var(--y) * 1.2)) rotate(calc(var(--r) + 18deg)) scale(1.05, 0.72);
-  }
-  70% {
-    transform: translate(calc(var(--x) * 1.2), calc(var(--y) * 0.7)) rotate(calc(var(--r) - 14deg)) scale(0.92, 1.18);
-  }
+  inset: 0;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
-}
-
-.orb[data-state="listening"] .orb-core i {
-  animation-duration: 2.4s;
-}
-
-/* Thinking: ribbons fade into the spinning swirl. */
-.orb[data-state="thinking"] .orb-core {
-  animation: spin 1.6s linear infinite;
-}
-
-.orb[data-state="thinking"] .orb-core::before,
-.orb[data-state="thinking"] .orb-core::after {
-  opacity: 1;
-}
-
-.orb[data-state="thinking"] .orb-core i {
-  opacity: 0;
-}
-
-.orb[data-state="idle"] .orb-core i {
-  animation-duration: 9s;
 }
 
 .orb-small {
@@ -996,8 +913,8 @@ a {
 }
 
 .orb-small .orb-core {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
 /* ---------- Voice capture screen ---------- */
@@ -1577,20 +1494,120 @@ a {
   }
 }
 
-/* ---------- Topbar (shot: lavender pill left, white chip right) ---------- */
+/* ---------- Topbar: official logo ---------- */
 
-.topbar .wordmark {
-  padding: 6px 12px 6px 9px;
-  border-radius: 999px;
-  background: rgba(214, 216, 240, 0.75);
-  font-size: 0.86rem;
+.topbar .logo {
+  display: block;
+  width: auto;
+  height: 48px;
 }
 
-.topbar .pill {
+/* ---------- Landing add-on tiles ---------- */
+
+.addons-title {
+  margin: 18px 0 2px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.addons-note {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.addons {
+  list-style: none;
+  margin: 0 -20px;
+  padding: 2px 20px 10px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 20px;
+  scrollbar-width: none;
+}
+
+.addons::-webkit-scrollbar {
+  display: none;
+}
+
+.addons li {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.addon {
+  position: relative;
+  width: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 8px 10px;
+  border: 0;
+  border-radius: 16px;
   background: #fff;
-  box-shadow: var(--shadow-soft);
   color: var(--ink);
-  padding: 8px 12px 8px 10px;
+  text-align: left;
+  box-shadow:
+    0 1px 2px rgba(30, 36, 60, 0.05),
+    0 8px 20px -14px rgba(30, 36, 60, 0.3);
+  cursor: pointer;
+}
+
+.addon img {
+  width: 88px;
+  height: 76px;
+  object-fit: contain;
+  align-self: center;
+}
+
+.addon-name {
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.addon-price {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.addon-plus {
+  position: absolute;
+  right: 6px;
+  top: 58px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eeeff3;
+  color: var(--ink-soft);
+}
+
+.addon-plus svg {
+  width: 14px;
+  height: 14px;
+}
+
+.addon[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 8px 20px -14px rgba(30, 36, 60, 0.3);
+}
+
+.addon[aria-pressed="true"] .addon-plus {
+  background: var(--ink);
+  color: #fff;
+}
+
+.visit-items {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
 }
 
 .landing-eyebrow {
@@ -1904,15 +1921,12 @@ a {
   object-fit: contain;
 }
 
-.pcard-brand {
+.pcard-media .pcard-brand {
   position: absolute;
-  left: 2px;
-  top: 4px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: linear-gradient(135deg, #2f7a72, #1f5a55);
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
 }
 
 .pcard-flag {

@@ -1,6 +1,7 @@
 import { promotesQuestion, type SignalLevel } from "@/lib/amplifier/interpret";
 import { BASE_QUESTIONS, QUESTIONS, SIGNS, type QuestionId, type SignSlug } from "@/lib/amplifier/signs";
-import { OTHER_SYMPTOMS, type ProductId, type SymptomId } from "./content";
+import { OTHER_SYMPTOMS, type AddOnId, type ProductId, type SymptomId } from "./content";
+import { DEFAULT_LOCATION, locationById, type DripLocation } from "./locations";
 import { recommend } from "./recommend";
 
 export type Scenario =
@@ -46,6 +47,8 @@ export interface DemoState {
   scenario: Scenario;
   liveEnabled: boolean;
   presenterKey: string;
+  /** Nearest DRIPBaR (geolocation, ?loc=, or the default). Kept across restarts. */
+  locationId: string;
   step: Step;
   slot: string | null;
   safety: SafetyAnswers;
@@ -59,6 +62,8 @@ export interface DemoState {
   };
   /** Product the customer wants to talk about at the visit; the clinician still decides. */
   interest: ProductId | null;
+  /** Quick-shot add-ons picked on the landing screen; approved by the clinician at the visit. */
+  addOns: AddOnId[];
 }
 
 interface ScenarioInfo {
@@ -97,7 +102,7 @@ const EMPTY_SAFETY: SafetyAnswers = {
   emergencySymptoms: null,
 };
 
-function journey(): Omit<DemoState, "scenario" | "liveEnabled" | "presenterKey"> {
+function journey(): Omit<DemoState, "scenario" | "liveEnabled" | "presenterKey" | "locationId"> {
   return {
     step: "landing",
     slot: null,
@@ -107,11 +112,22 @@ function journey(): Omit<DemoState, "scenario" | "liveEnabled" | "presenterKey">
     voice: null,
     answers: { questions: {}, symptoms: [], note: "" },
     interest: null,
+    addOns: [],
   };
 }
 
 export function initialState(): DemoState {
-  return { ...journey(), scenario: "voice-fatigue", liveEnabled: false, presenterKey: "" };
+  return {
+    ...journey(),
+    scenario: "voice-fatigue",
+    liveEnabled: false,
+    presenterKey: "",
+    locationId: DEFAULT_LOCATION.id,
+  };
+}
+
+export function currentLocation(state: DemoState): DripLocation {
+  return locationById(state.locationId) ?? DEFAULT_LOCATION;
 }
 
 /** What the sample path returns for each scenario. Labeled as simulated everywhere it appears. */
@@ -136,6 +152,8 @@ export type Action =
   | { type: "setScenario"; scenario: Scenario }
   | { type: "setLiveEnabled"; enabled: boolean }
   | { type: "setPresenterKey"; key: string }
+  | { type: "setLocation"; locationId: string }
+  | { type: "toggleAddOn"; addOn: AddOnId }
   | { type: "chooseSlot"; slot: string }
   | { type: "setSafety"; field: keyof SafetyAnswers; value: boolean }
   | { type: "submitSafety" }
@@ -200,6 +218,14 @@ export function reducer(state: DemoState, action: Action): DemoState {
       return { ...state, liveEnabled: action.enabled };
     case "setPresenterKey":
       return { ...state, presenterKey: action.key };
+    case "setLocation": {
+      const location = locationById(action.locationId);
+      return location ? { ...state, locationId: location.id } : state;
+    }
+    case "toggleAddOn": {
+      const has = state.addOns.includes(action.addOn);
+      return { ...state, addOns: has ? state.addOns.filter((id) => id !== action.addOn) : [...state.addOns, action.addOn] };
+    }
     case "chooseSlot":
       return { ...state, slot: action.slot, step: state.step === "landing" ? "safety" : state.step };
     case "setSafety":

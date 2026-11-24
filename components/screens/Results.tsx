@@ -4,10 +4,11 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type Dispatch } from "react";
 import { ISSUE_LABELS } from "@/lib/amplifier/interpret";
 import { QUESTIONS } from "@/lib/amplifier/signs";
-import { CLINIC, OTHER_SYMPTOMS, PRODUCTS, SLOTS, slotLabel } from "@/lib/demo/content";
+import { OTHER_SYMPTOMS, PRODUCTS, SLOTS, addOnById, productPrice, slotLabel } from "@/lib/demo/content";
 import { recommend, type Recommendation } from "@/lib/demo/recommend";
 import {
   confirmedConcerns,
+  currentLocation,
   intakeSummary,
   promotedQuestion,
   questionOrder,
@@ -150,7 +151,7 @@ function ProductCard({
   return (
     <li className="pcard">
       <div className="pcard-media">
-        <span className="pcard-brand" aria-hidden="true" />
+        <Image className="pcard-brand" src="/brand/dripbar-mark.svg" alt="" width={16} height={16} />
         {rec.featured ? <span className="pcard-flag">Top pick</span> : null}
         <Image src={product.image} alt={product.alt} width={480} height={480} sizes="160px" priority={eager} />
         <button
@@ -167,7 +168,7 @@ function ProductCard({
         {product.name}
       </button>
       <p className="pcard-price">
-        <strong>{product.price}</strong>
+        <strong>{productPrice(product, currentLocation(state))}</strong>
         <span>{product.kind === "drip" ? "List price" : "At your visit"}</span>
       </p>
       <p className="pcard-foot">
@@ -221,7 +222,7 @@ function ProductSheet({
             {product.name}
           </h2>
           <p className="sheet-price">
-            <strong>{product.price}</strong> <span>{product.priceNote}</span>
+            <strong>{productPrice(product, currentLocation(state))}</strong> <span>{product.priceNote}</span>
           </p>
           <p className="sheet-blurb">{product.blurb}</p>
           <h3 className="sheet-sub">Why it&apos;s here</h3>
@@ -303,7 +304,7 @@ export function Recommended({ state, dispatch }: Props) {
           </div>
         ) : null}
 
-        <p className="small sheet-note">Prices are local list prices at {CLINIC.name}, subject to clinician assessment.</p>
+        <p className="small sheet-note">Prices are list prices at {currentLocation(state).name}, subject to clinician assessment.</p>
       </div>
 
       <div className="actions results-actions">
@@ -316,25 +317,37 @@ export function Recommended({ state, dispatch }: Props) {
   );
 }
 
-function VisitItem({ state }: { state: DemoState }) {
-  if (!state.interest) return null;
-  const product = PRODUCTS[state.interest];
+function VisitItems({ state }: { state: DemoState }) {
+  const location = currentLocation(state);
+  const items = [
+    ...(state.interest ? [PRODUCTS[state.interest]] : []),
+    ...state.addOns.map(addOnById),
+  ];
+  if (items.length === 0) return null;
   return (
-    <div className="notify" style={{ marginBottom: 14 }}>
-      <span className="notify-thumb">
-        <Image src={product.image} alt={product.alt} width={48} height={48} />
-      </span>
-      <span className="notify-body">
-        <strong>{product.name}</strong>
-        <span>To discuss with your clinician</span>
-      </span>
-      <span className="price">{product.price}</span>
-    </div>
+    <ul className="visit-items" aria-label="To discuss with your clinician">
+      {items.map((item) => (
+        <li key={item.id} className="notify">
+          <span className="notify-thumb">
+            <Image src={item.image} alt={item.alt} width={48} height={48} />
+          </span>
+          <span className="notify-body">
+            <strong>{item.name}</strong>
+            <span>Your clinician confirms</span>
+          </span>
+          <span className="price">{productPrice(item, location)}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
 function discussing(state: DemoState) {
-  return state.interest ? PRODUCTS[state.interest].name : "Your clinician's recommendation";
+  const names = [
+    ...(state.interest ? [PRODUCTS[state.interest].name] : []),
+    ...state.addOns.map((id) => addOnById(id).name),
+  ];
+  return names.length ? names.join(", ") : "Your clinician's recommendation";
 }
 
 export function Booking({ state, dispatch }: Props) {
@@ -343,7 +356,7 @@ export function Booking({ state, dispatch }: Props) {
       <ScreenHead onBack={() => dispatch({ type: "back" })} />
       <p className="eyebrow">Book your visit</p>
       <Heading>Pick your time</Heading>
-      <VisitItem state={state} />
+      <VisitItems state={state} />
       <div className="slots" role="radiogroup" aria-label="Today's visit times">
         {SLOTS.map((slot) => (
           <button
@@ -364,7 +377,7 @@ export function Booking({ state, dispatch }: Props) {
         <ul className="summary-list">
           <li>
             <span>Clinic</span>
-            <strong>{CLINIC.name}</strong>
+            <strong>{currentLocation(state).name}</strong>
           </li>
           <li>
             <span>Time</span>
@@ -402,12 +415,12 @@ export function Booked({ state, dispatch }: Props) {
       </span>
       <Heading>You&apos;re booked for {slotLabel(state.slot)}</Heading>
       <p className="lede">No appointment was made and nothing was charged. This confirmation is part of the demo.</p>
-      <VisitItem state={state} />
+      <VisitItems state={state} />
       <div className="card" style={{ padding: "6px 18px" }}>
         <ul className="summary-list">
           <li>
             <span>Where</span>
-            <strong>{CLINIC.name}</strong>
+            <strong>{currentLocation(state).name}</strong>
           </li>
           <li>
             <span>To discuss</span>

@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState, type Dispatch } from "react";
-import { PRODUCTS, SLOTS } from "@/lib/demo/content";
-import type { Action, DemoState, SafetyAnswers } from "@/lib/demo/state";
+import { ADD_ONS, PRODUCTS, SLOTS, productPrice } from "@/lib/demo/content";
+import { currentLocation, type Action, type DemoState, type SafetyAnswers } from "@/lib/demo/state";
 import { VoiceOrb } from "../VoiceOrb";
 import Image from "next/image";
-import { ChevronDown, Drip, Grid, Heading, Mic, ScreenHead, Shield, Stethoscope, YesNo } from "../ui";
+import { CheckSmall, Grid, Heading, Plus, ScreenHead, Stethoscope, YesNo } from "../ui";
 
 interface Props {
   state: DemoState;
   dispatch: Dispatch<Action>;
 }
 
-export function Landing({ dispatch }: Props) {
+export function Landing({ state, dispatch }: Props) {
   const [showTimes, setShowTimes] = useState(false);
   const timesRef = useRef<HTMLHeadingElement>(null);
+  const location = currentLocation(state);
 
   useEffect(() => {
     if (showTimes) timesRef.current?.focus();
@@ -28,19 +29,16 @@ export function Landing({ dispatch }: Props) {
         </span>
         <span className="notify-body">
           <strong>{PRODUCTS.hydration.name}</strong>
-          <span>Local list price at The DRIPBaR Huntington Beach, subject to clinician assessment.</span>
+          <span className="notify-loc">{location.name}</span>
         </span>
-        <span className="price">{PRODUCTS.hydration.price}</span>
+        <span className="price">{productPrice(PRODUCTS.hydration, location)}</span>
       </div>
 
       <div className="landing-space" />
 
-      <p className="eyebrow landing-eyebrow">Sunday · Huntington Beach</p>
-      <Heading id="landing-title" className="display">Feeling rough this morning?</Heading>
-      <p className="lede" style={{ marginBottom: 0 }}>
-        Tell us how you feel, by voice or by typing. We&apos;ll suggest options, and a clinician confirms everything at
-        your visit.
-      </p>
+      <Heading id="landing-title" className="display">
+        How are you feeling?
+      </Heading>
 
       {showTimes ? (
         <div>
@@ -64,29 +62,32 @@ export function Landing({ dispatch }: Props) {
         </div>
       ) : (
         <>
-          <ol className="how" aria-label="How it works">
-            <li>
-              <b aria-hidden="true">
-                <Shield />
-              </b>
-              <span>A quick safety check</span>
-            </li>
-            <li>
-              <b aria-hidden="true">
-                <Mic />
-              </b>
-              <span>Tap to talk, about 22 seconds</span>
-            </li>
-            <li>
-              <b aria-hidden="true">
-                <Drip />
-              </b>
-              <span>Options a clinician confirms</span>
-            </li>
-          </ol>
-          <span className="landing-more" aria-hidden="true">
-            <ChevronDown />
-          </span>
+          <h2 className="addons-title">Add a quick shot</h2>
+          <p className="addons-note">Your clinician confirms add-ons at your visit.</p>
+          <ul className="addons" aria-label="Quick shot add-ons">
+            {ADD_ONS.map((addOn) => {
+              const added = state.addOns.includes(addOn.id);
+              const price = productPrice(addOn, location);
+              return (
+                <li key={addOn.id}>
+                  <button
+                    type="button"
+                    className="addon"
+                    aria-pressed={added}
+                    aria-label={`${added ? "Remove" : "Add"} ${addOn.name}, ${price}`}
+                    onClick={() => dispatch({ type: "toggleAddOn", addOn: addOn.id })}
+                  >
+                    <Image src={addOn.image} alt={addOn.alt} width={360} height={360} sizes="88px" />
+                    <span className="addon-name">{addOn.name}</span>
+                    <span className="addon-price">{price}</span>
+                    <span className="addon-plus" aria-hidden="true">
+                      {added ? <CheckSmall /> : <Plus />}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
           <div className="actions" style={{ paddingTop: 8 }}>
             <button type="button" className="composer" onClick={() => setShowTimes(true)}>
               <VoiceOrb state="idle" small />
@@ -95,9 +96,6 @@ export function Landing({ dispatch }: Props) {
                 <Grid />
               </span>
             </button>
-            <p className="small" style={{ margin: 0, textAlign: "center" }}>
-              Next: pick a time, a quick safety check, then tap to talk.
-            </p>
           </div>
         </>
       )}

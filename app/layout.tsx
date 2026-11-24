@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "@/components/orbs/orbs.css";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -8,7 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "The DRIPBaR · Feeling rough this morning?",
+  title: "The DRIPBaR · How are you feeling?",
+  icons: { icon: "/brand/dripbar-mark.svg" },
   description: "Tell us how you feel and get options a clinician confirms at your visit. Demo.",
 };
 

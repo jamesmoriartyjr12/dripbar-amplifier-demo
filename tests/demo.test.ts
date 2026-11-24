@@ -14,6 +14,9 @@ import {
   type Scenario,
 } from "@/lib/demo/state";
 import { encodeWav, resample } from "@/lib/audio/wav";
+import { ADD_ONS, PRODUCTS, productPrice } from "@/lib/demo/content";
+import { DEFAULT_LOCATION, LOCATIONS, locationById, nearestLocation } from "@/lib/demo/locations";
+import { currentLocation } from "@/lib/demo/state";
 
 function run(actions: Action[], start: DemoState = initialState()): DemoState {
   return actions.reduce(reducer, start);
@@ -235,6 +238,45 @@ describe("booking and reset", () => {
     expect(scenarioFromParam("mood-disruption")).toBe("voice-mood");
     expect(scenarioFromParam("typed")).toBe("typed");
     expect(scenarioFromParam("nope")).toBeNull();
+  });
+});
+
+describe("nearest location and add-ons", () => {
+  it("picks the nearest DRIPBaR from coordinates", () => {
+    expect(nearestLocation(33.66, -117.99).id).toBe("huntington-beach"); // Huntington Beach
+    expect(nearestLocation(34.05, -118.24).id).toBe("huntington-beach"); // Los Angeles
+    expect(nearestLocation(39.53, -119.81).id).toBe("south-reno"); // Reno
+    expect(nearestLocation(25.76, -80.19).id).toBe("ft-lauderdale-south-harbor-plaza"); // Miami
+    expect(nearestLocation(40.71, -74.0).id).toBe("cranford-nj"); // New York
+    expect(nearestLocation(41.82, -71.41).id).toBe("newport-goddard-row"); // Providence
+    expect(nearestLocation(35.23, -80.84).id).toBe("greensboro"); // Charlotte
+  });
+
+  it("resolves ?loc= ids and aliases, and ignores unknown ones", () => {
+    expect(locationById("naples")?.shortName).toBe("Naples");
+    expect(locationById("Reno")?.id).toBe("south-reno");
+    expect(locationById("nowhere")).toBeNull();
+    expect(reducer(initialState(), { type: "setLocation", locationId: "nowhere" }).locationId).toBe(DEFAULT_LOCATION.id);
+  });
+
+  it("prices drips and add-ons at the chosen location", () => {
+    const reno = reducer(initialState(), { type: "setLocation", locationId: "south-reno" });
+    expect(productPrice(PRODUCTS.hydration, currentLocation(reno))).toBe("$99");
+    expect(productPrice(PRODUCTS.powerpack, currentLocation(reno))).toBe("$199");
+    expect(productPrice(PRODUCTS.evolve, currentLocation(reno))).toBe("Membership");
+    expect(productPrice(PRODUCTS.hydration, DEFAULT_LOCATION)).toBe(PRODUCTS.hydration.price);
+    for (const loc of LOCATIONS) for (const addOn of ADD_ONS) expect(loc.prices[addOn.priceKey]).toBeGreaterThan(0);
+  });
+
+  it("toggles add-ons, clears them on reset, and keeps the location", () => {
+    const state = run([
+      { type: "setLocation", locationId: "naples" },
+      { type: "toggleAddOn", addOn: "b12" },
+      { type: "toggleAddOn", addOn: "tri-immune" },
+      { type: "toggleAddOn", addOn: "b12" },
+    ]);
+    expect(state.addOns).toEqual(["tri-immune"]);
+    expect(reducer(state, { type: "reset" })).toMatchObject({ addOns: [], locationId: "naples" });
   });
 });
 

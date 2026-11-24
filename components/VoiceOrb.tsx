@@ -1,14 +1,29 @@
-import type { CSSProperties } from "react";
+"use client";
 
-const PETALS = [1, 2, 3, 4, 5, 6, 7, 8];
+import type { CSSProperties } from "react";
+import { ORBS, useOrbVariant, type OrbVariant } from "./orbs";
 
 export type OrbState = "idle" | "listening" | "thinking";
 
-export function VoiceOrb({ state, level = 0, small = false }: { state: OrbState; level?: number; small?: boolean }) {
+export function VoiceOrb({
+  state,
+  level = 0,
+  small = false,
+  variant,
+}: {
+  state: OrbState;
+  level?: number;
+  small?: boolean;
+  variant?: OrbVariant;
+}) {
+  const contextVariant = useOrbVariant();
+  const chosen = variant ?? contextVariant;
+  const { Core } = ORBS[chosen];
   return (
     <div
       className={`orb${small ? " orb-small" : ""}`}
       data-state={state}
+      data-orb={chosen}
       style={{ "--level": level.toFixed(3) } as CSSProperties}
       aria-hidden="true"
     >
@@ -22,9 +37,7 @@ export function VoiceOrb({ state, level = 0, small = false }: { state: OrbState;
       )}
       <span className="orb-disc">
         <span className="orb-core">
-          {PETALS.map((petal) => (
-            <i key={petal} />
-          ))}
+          <Core />
         </span>
       </span>
     </div>

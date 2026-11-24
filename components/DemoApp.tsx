@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useReducer, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useReducer, useRef, useSyncExternalStore } from "react";
+import { locationById, nearestLocation } from "@/lib/demo/locations";
 import { initialState, reducer, scenarioFromParam } from "@/lib/demo/state";
+import { DEFAULT_ORB, OrbProvider, orbFromParam, type OrbVariant } from "./orbs";
 import { EmergencyStop, Landing, MedicalStop, Safety } from "./screens/Entry";
 import { Capture, Consent, Intake } from "./screens/Voice";
 import { Booked, Booking, Questions, Recommended } from "./screens/Results";
@@ -12,15 +15,37 @@ const KEY_STORAGE = "dripbar-demo-presenter-key";
  * Demo switches live in the URL so nothing presenter-facing shows up for customers:
  * ?scenario=fatigue|dehydration|stress|anxiety|mood-disruption|unsuitable|timeout|typed
  * ?live=1 offers real recording when the server has Amplifier credentials and presenter access.
+ * ?loc=<location id> pins the clinic (otherwise browser geolocation picks the nearest, else the default).
+ * ?orb=1..4 picks the orb design.
  */
 export function DemoApp() {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const firstRender = useRef(true);
+  const orb = useSyncExternalStore<OrbVariant>(
+    noSubscribe,
+    () => orbFromParam(new URLSearchParams(window.location.search).get("orb")) ?? DEFAULT_ORB,
+    () => DEFAULT_ORB,
+  );
 
   useEffect(() => {
     const url = new URL(window.location.href);
     const scenario = scenarioFromParam(url.searchParams.get("scenario"));
     if (scenario) dispatch({ type: "setScenario", scenario });
+
+    const pinned = locationById(url.searchParams.get("loc"));
+    if (pinned) {
+      dispatch({ type: "setLocation", locationId: pinned.id });
+    } else if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) =>
+          dispatch({
+            type: "setLocation",
+            locationId: nearestLocation(position.coords.latitude, position.coords.longitude).id,
+          }),
+        () => undefined,
+        { maximumAge: 60 * 60 * 1000, timeout: 10000 },
+      );
+    }
 
     const key = url.searchParams.get("key");
     if (key !== null) {
@@ -104,36 +129,34 @@ export function DemoApp() {
         </div>
         {state.step === "capture" ? null : (
           <header className="topbar">
-            <span className="wordmark">
-              <span className="wordmark-drop" aria-hidden="true" />
-              <span>
-                The <b>DRIPBaR</b>
-              </span>
-            </span>
-            <span className={`pill${state.liveEnabled ? " pill-live" : ""}`}>
-              <span className="pill-dot" aria-hidden="true" />
-              {state.liveEnabled ? "Live analysis on" : "Demo mode"}
-            </span>
+            <Image
+              className="logo"
+              src="/brand/dripbar-logo.svg"
+              alt="The DRIPBaR Vitamin Therapy"
+              width={62}
+              height={50}
+              priority
+            />
           </header>
         )}
-        <main key={state.step} className="main">
-          {screen}
-        </main>
-        <footer className="footnote" hidden={state.step === "capture"}>
-          Demo: sample appointments and a simulated booking.
-          {state.step !== "landing" ? (
-            <>
-              {" "}
-              <button type="button" className="link-btn" onClick={() => dispatch({ type: "reset" })}>
-                Restart
-              </button>
-            </>
-          ) : null}
-        </footer>
+        <OrbProvider variant={orb}>
+          <main key={state.step} className="main">
+            {screen}
+          </main>
+        </OrbProvider>
+        {state.step === "landing" || state.step === "capture" ? null : (
+          <footer className="footnote">
+            <button type="button" className="link-btn" onClick={() => dispatch({ type: "reset" })}>
+              Restart
+            </button>
+          </footer>
+        )}
       </div>
     </div>
   );
 }
+
+const noSubscribe = () => () => undefined;
 
 const STRANDS = [-48, -32, -16, 0, 16, 32, 48];
 

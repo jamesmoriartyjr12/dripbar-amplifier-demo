@@ -1,10 +1,4 @@
-export const CLINIC = {
-  name: "The DRIPBaR Huntington Beach",
-  shortName: "Huntington Beach",
-  menuUrl: "https://huntington-beach.thedripbar.com/services-menu/",
-  membershipUrl: "https://huntington-beach.thedripbar.com/memberships/",
-  supplementsUrl: "https://thedripbar.com/services-menu/wellness-services/oral-supplements/",
-};
+import type { DripLocation, PricedItem } from "./locations";
 
 export const SAMPLE_SLOT = "11:40 a.m.";
 
@@ -41,6 +35,8 @@ export interface Product {
   /** Original generated product image in /public/products, 480 px square WebP on white. */
   image: string;
   alt: string;
+  /** Items priced per location; `price` holds the default (Huntington Beach) list price. */
+  priceKey?: PricedItem;
 }
 
 export const PRODUCTS: Record<ProductId, Product> = {
@@ -54,6 +50,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     url: "https://huntington-beach.thedripbar.com/services-menu/",
     image: "/products/hydration.webp",
     alt: "Clear IV drip bag filled with pale aqua fluid",
+    priceKey: "hydration",
   },
   powerpack: {
     id: "powerpack",
@@ -65,6 +62,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     url: "https://huntington-beach.thedripbar.com/services-menu/",
     image: "/products/powerpack.webp",
     alt: "IV drip bag filled with iridescent amber-to-violet fluid",
+    priceKey: "powerpack",
   },
   evolve: {
     id: "evolve",
@@ -89,6 +87,50 @@ export const PRODUCTS: Record<ProductId, Product> = {
     alt: "Frosted supplement bottle beside amber and pink soft-gel capsules",
   },
 };
+
+export function productPrice(product: { price?: string; priceKey?: PricedItem }, location: DripLocation): string {
+  return product.priceKey ? `$${location.prices[product.priceKey]}` : (product.price ?? "");
+}
+
+export type AddOnId = "b12" | "tri-immune" | "b-complex" | "im-supercharged";
+
+export interface AddOn {
+  id: AddOnId;
+  name: string;
+  priceKey: PricedItem;
+  image: string;
+  alt: string;
+}
+
+/** IM quick shots from the DRIPBaR menu, offered at every location in LOCATIONS. */
+export const ADD_ONS: AddOn[] = [
+  { id: "b12", name: "B12 shot", priceKey: "b12", image: "/products/addon-b12.webp", alt: "Glass vial of pink-red liquid" },
+  {
+    id: "tri-immune",
+    name: "Tri-Immune",
+    priceKey: "tri-immune",
+    image: "/products/addon-tri-immune.webp",
+    alt: "Three small vials of amber, orange and clear liquid",
+  },
+  {
+    id: "b-complex",
+    name: "B-Complex",
+    priceKey: "b-complex",
+    image: "/products/addon-b-complex.webp",
+    alt: "Tilted vial of bright yellow liquid",
+  },
+  {
+    id: "im-supercharged",
+    name: "IM Supercharged",
+    priceKey: "im-supercharged",
+    image: "/products/addon-supercharged.webp",
+    alt: "Vial of violet-to-teal liquid",
+  },
+];
+
+export function addOnById(id: AddOnId): AddOn {
+  return ADD_ONS.find((addOn) => addOn.id === id) ?? ADD_ONS[0];
+}
 
 export const OTHER_SYMPTOMS = [
   { id: "low-energy", label: "Low energy" },

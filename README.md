@@ -31,6 +31,8 @@ Nothing presenter-facing appears in the customer UI. Use URL parameters instead:
 | `/?scenario=timeout` | Sample that times out, falls back to the standard questions |
 | `/?scenario=typed` | Typed intake only (no voice step) |
 | `/?live=1` | Offers real recording when live analysis is configured (below) |
+| `/?loc=naples` | Pins the clinic (ids in `lib/demo/locations.ts`; aliases such as `reno`, `newport`). Without it, browser geolocation picks the nearest location, falling back to Huntington Beach if location is denied |
+| `/?orb=1` … `4` | Picks the orb design. `/orbs` previews every option side by side |
 
 The footer **Restart** link (and **Start over** on the confirmation) resets the walkthrough.
 
@@ -46,12 +48,18 @@ Each sign's usable result promotes one plain-language question to the top. Thirs
 
 Customer copy never names a sign or says the voice found anything. Recommendations quote only the customer's own answers.
 
+## Locations, prices and brand assets
+
+- `lib/demo/locations.ts` lists seven real DRIPBaR locations with addresses, coordinates and list prices taken from each location's page on thedripbar.com (schema.org data, Nov 24, 2026). Drip and add-on prices follow the chosen location.
+- `public/brand/dripbar-logo.svg` and `dripbar-mark.svg` are vector traces of The DRIPBaR's official logo files (`/brand/logo.png` and the site icon on thedripbar.com), which the site publishes only as raster images.
+- Product and add-on images in `public/products/` are original generated images.
+
 ## Optional: live Amplifier analysis
 
 **Verified with real credentials (Nov 23, 2026).** All five signs returned completed results from the real API, and the adapter matched its requests, job statuses, result fields and error bodies with no changes. The in-app live journey also ran end to end: consent, recording, polling, then the promoted question tagged Live analysis.
 
 1. Copy `.env.example` to `.env.local` and set **both** `AMPLIFIER_ACCOUNT_ID` and `AMPLIFIER_API_KEY` (server-only). Amplifier requires the `X-Account-ID` header on every request, so with only the key set the API returns 401 and the app keeps live mode off.
-2. Restart `npm run dev` and open `http://localhost:3000/?live=1`. The badge switches to **Live analysis on**, and **Tap to talk** sends the recording to Amplifier instead of showing the simulated result.
+2. Restart `npm run dev` and open `http://localhost:3000/?live=1`. **Tap to talk** then shows a **Live analysis** tag while recording and sends the recording to Amplifier instead of showing the simulated result.
 3. The customer sees a consent screen before the microphone opens or any audio leaves the device.
 
 How it works:

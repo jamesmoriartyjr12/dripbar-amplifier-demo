@@ -1,4 +1,4 @@
-/* Four orb options for ?orb=1..4. Each reads --level (0..1) and .orb[data-state]. */
+/* Orb options for ?orb=1a..1d, 2, 3, 4. Each reads --level (0..1) and .orb[data-state]. */
 
 /* ---------- 1. Aurora sphere: glossy glass ball with drifting colour light ---------- */
 
@@ -77,6 +77,178 @@
 
 .orb-small .core-aurora i {
   filter: blur(3px);
+}
+
+.core-aurora .a4,
+.core-aurora s {
+  display: none;
+}
+
+/* 1a Pearl: the base look above. Cool teal, violet and pink; the sphere swells with the mic. */
+
+/* 1b Sunrise: warm palette, four slow blobs, frosted matte finish; blobs spread apart with the mic. */
+.core-aurora[data-look="b"] {
+  background: radial-gradient(circle at 50% 40%, #fffaf3 0%, #ffe6d6 70%, #ffd4c4 100%);
+  box-shadow:
+    inset 0 -6px 14px rgba(230, 120, 90, 0.22),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  transform: none;
+}
+
+.core-aurora[data-look="b"] i {
+  --spread: calc(10% + var(--level) * 30%);
+  inset: 20%;
+  animation-duration: 11s;
+  opacity: 0.85;
+}
+
+.core-aurora[data-look="b"] .a1 {
+  background: #ffb36b;
+}
+
+.core-aurora[data-look="b"] .a2 {
+  background: #ff7d8e;
+}
+
+.core-aurora[data-look="b"] .a3 {
+  background: #ffd96b;
+}
+
+.core-aurora[data-look="b"] .a4 {
+  display: block;
+  background: #e88ad8;
+  animation-delay: -7s;
+  animation-direction: reverse;
+}
+
+.core-aurora[data-look="b"] b {
+  display: none;
+}
+
+.core-aurora[data-look="b"] s {
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12) 62%, rgba(255, 255, 255, 0.3) 100%);
+}
+
+.orb[data-state="listening"] .core-aurora[data-look="b"] i {
+  animation-duration: 4s;
+}
+
+/* 1c Deep glass: DRIPBaR teal and olive on dark glass, fast motion, glossy highlight and rim;
+   the light brightens and saturates with the mic. */
+.core-aurora[data-look="c"] {
+  background: radial-gradient(circle at 50% 42%, #23606e 0%, #0f3440 70%, #0a2530 100%);
+  box-shadow:
+    inset 0 -8px 16px rgba(0, 0, 0, 0.35),
+    0 6px 16px -8px rgba(10, 50, 60, 0.6);
+  transform: none;
+  filter: brightness(calc(0.85 + var(--level) * 0.3)) saturate(calc(1 + var(--level) * 0.6));
+  transition: filter 90ms linear;
+}
+
+.core-aurora[data-look="c"] i {
+  --spread: 18%;
+  filter: blur(6px);
+  opacity: 0.75;
+  animation-duration: 4s;
+}
+
+.core-aurora[data-look="c"] .a1 {
+  background: #3fe0c8;
+}
+
+.core-aurora[data-look="c"] .a2 {
+  background: #c3cf3e;
+}
+
+.core-aurora[data-look="c"] .a3 {
+  background: #5aa8ff;
+}
+
+.core-aurora[data-look="c"] b {
+  background:
+    radial-gradient(ellipse 34% 22% at 36% 24%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle at 72% 84%, rgba(255, 255, 255, 0.3) 0 6%, rgba(255, 255, 255, 0) 18%);
+}
+
+.core-aurora[data-look="c"] s {
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.45),
+    inset 0 -3px 6px rgba(110, 240, 220, 0.35);
+}
+
+.orb[data-state="listening"] .core-aurora[data-look="c"] i {
+  animation-duration: 1.4s;
+}
+
+/* 1d Halo: pale iridescent light with two slow blobs and an iridescent rim and outer glow
+   that brighten and widen with the mic. */
+.core-aurora[data-look="d"] {
+  background: radial-gradient(circle at 50% 42%, #ffffff 0%, #eef0ff 70%, #e2e4fb 100%);
+  transform: none;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    0 0 calc(4px + var(--level) * 26px) calc(var(--level) * 6px) rgba(160, 140, 255, 0.55);
+  transition: box-shadow 90ms linear;
+}
+
+.core-aurora[data-look="d"] i {
+  --spread: 14%;
+  inset: 18%;
+  animation-duration: 9s;
+  opacity: 0.7;
+}
+
+.core-aurora[data-look="d"] .a1 {
+  background: #8fe3ff;
+}
+
+.core-aurora[data-look="d"] .a2 {
+  background: #c4a4ff;
+}
+
+.core-aurora[data-look="d"] .a3 {
+  display: none;
+}
+
+.core-aurora[data-look="d"] s {
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #8fe3ff, #c4a4ff, #ffb3dc, #ffe39a, #8fe3ff);
+  -webkit-mask: radial-gradient(circle, transparent 64%, #000 68%);
+  mask: radial-gradient(circle, transparent 64%, #000 68%);
+  opacity: calc(0.45 + var(--level) * 0.9);
+  transition: opacity 90ms linear;
+  animation: spin 8s linear infinite;
+}
+
+.orb[data-state="listening"] .core-aurora[data-look="d"] i {
+  animation-duration: 3.4s;
+}
+
+.orb[data-state="thinking"] .core-aurora[data-look="d"] s {
+  opacity: 1;
+  animation-duration: 1.2s;
+}
+
+.orb[data-state="thinking"] .core-aurora[data-look="b"],
+.orb[data-state="thinking"] .core-aurora[data-look="c"] {
+  animation: none;
+}
+
+.orb[data-state="thinking"] .core-aurora[data-look="b"] i,
+.orb[data-state="thinking"] .core-aurora[data-look="c"] i {
+  --spread: 6%;
+  animation-duration: 0.9s;
 }
 
 /* ---------- 2. Liquid drop: DRIPBaR teal blob that ripples with your voice ---------- */
@@ -309,6 +481,7 @@
 @media (prefers-reduced-motion: reduce) {
   .core-aurora,
   .core-aurora i,
+  .core-aurora s,
   .core-drop .blob,
   .core-drop .drops,
   .core-eq,
@@ -366,4 +539,15 @@
 .orb-preview a {
   font-size: 0.85rem;
   color: var(--violet, #5a48c8);
+}
+
+.orb-preview-group {
+  max-width: 1100px;
+  margin: 0 auto 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.orb-preview section + section {
+  margin-top: 28px;
 }

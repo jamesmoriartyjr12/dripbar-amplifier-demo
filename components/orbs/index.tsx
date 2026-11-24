@@ -3,22 +3,27 @@
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 
 /**
- * Orb options, switchable with the hidden ?orb=1..4 param. Each core renders inside the shared
+ * Orb options, switchable with the hidden ?orb= param: 1a..1d (Aurora options; 1 means 1a), 2, 3 or 4. Each core renders inside the shared
  * white disc in VoiceOrb and reads `--level` (0..1, live mic level) and `data-state` from `.orb`.
  * To try a new design, add a core here and give it a number; the styles live in orbs.css.
  */
 
 const BARS = Array.from({ length: 24 }, (_, index) => index);
 
-function Aurora() {
-  return (
-    <span className="core-aurora">
-      <i className="a1" />
-      <i className="a2" />
-      <i className="a3" />
-      <b />
-    </span>
-  );
+/** Aurora options differ only in CSS (palette, blob count, motion, finish, glow, level response). */
+function aurora(look: "a" | "b" | "c" | "d") {
+  return function Aurora() {
+    return (
+      <span className="core-aurora" data-look={look}>
+        <i className="a1" />
+        <i className="a2" />
+        <i className="a3" />
+        <i className="a4" />
+        <b />
+        <s />
+      </span>
+    );
+  };
 }
 
 function Droplet() {
@@ -59,19 +64,26 @@ function Waves() {
 }
 
 export const ORBS = {
-  1: { name: "Aurora sphere", Core: Aurora },
-  2: { name: "Liquid drop", Core: Droplet },
-  3: { name: "Equalizer ring", Core: Equalizer },
-  4: { name: "Sound waves", Core: Waves },
+  "1a": { name: "Aurora · Pearl", Core: aurora("a") },
+  "1b": { name: "Aurora · Sunrise", Core: aurora("b") },
+  "1c": { name: "Aurora · Deep glass", Core: aurora("c") },
+  "1d": { name: "Aurora · Halo", Core: aurora("d") },
+  "2": { name: "Liquid drop", Core: Droplet },
+  "3": { name: "Equalizer ring", Core: Equalizer },
+  "4": { name: "Sound waves", Core: Waves },
 } as const;
 
 export type OrbVariant = keyof typeof ORBS;
 
-export const DEFAULT_ORB: OrbVariant = 1;
+export const AURORA_OPTIONS: OrbVariant[] = ["1a", "1b", "1c", "1d"];
+
+export const DEFAULT_ORB: OrbVariant = "1a";
 
 export function orbFromParam(param: string | null): OrbVariant | null {
-  const n = Number(param);
-  return n in ORBS ? (n as OrbVariant) : null;
+  if (!param) return null;
+  const key = param.trim().toLowerCase();
+  const resolved = key === "1" ? "1a" : key;
+  return resolved in ORBS ? (resolved as OrbVariant) : null;
 }
 
 const OrbContext = createContext<OrbVariant>(DEFAULT_ORB);

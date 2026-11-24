@@ -32,7 +32,7 @@ Nothing presenter-facing appears in the customer UI. Use URL parameters instead:
 | `/?scenario=typed` | Typed intake only (no voice step) |
 | `/?live=1` | Offers real recording when live analysis is configured (below) |
 | `/?loc=naples` | Pins the clinic (ids in `lib/demo/locations.ts`; aliases such as `reno`, `newport`). Without it, browser geolocation picks the nearest location, falling back to Huntington Beach if location is denied |
-| `/?orb=1` … `4` | Picks the orb design. `/orbs` previews every option side by side |
+| `/?orb=1a` … `1d`, `2`, `3`, `4` | Picks the orb design. Aurora (`1a`, Pearl) is the default; `1b` Sunrise, `1c` Deep glass, `1d` Halo are its variations, and `1` means `1a`. `/orbs` previews every option side by side (`/orbs?set=aurora` for just the Aurora options). Orbs live in `components/orbs/` |
 
 The footer **Restart** link (and **Start over** on the confirmation) resets the walkthrough.
 

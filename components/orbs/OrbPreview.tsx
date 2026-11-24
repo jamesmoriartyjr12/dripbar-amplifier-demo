@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { VoiceOrb, type OrbState } from "../VoiceOrb";
-import { ORBS, type OrbVariant } from ".";
+import { AURORA_OPTIONS, ORBS, type OrbVariant } from ".";
 
 const CYCLE: { state: OrbState; ms: number }[] = [
   { state: "idle", ms: 2500 },
@@ -10,8 +10,20 @@ const CYCLE: { state: OrbState; ms: number }[] = [
   { state: "thinking", ms: 2500 },
 ];
 
+const noSubscribe = () => () => undefined;
+
+const GROUPS: { title: string; variants: OrbVariant[] }[] = [
+  { title: "Aurora options", variants: AURORA_OPTIONS },
+  { title: "Other orbs", variants: (Object.keys(ORBS) as OrbVariant[]).filter((v) => !AURORA_OPTIONS.includes(v)) },
+];
+
 /** Side-by-side preview of every orb, cycling idle, listening (simulated level) and thinking. */
 export function OrbPreview() {
+  const only = useSyncExternalStore(
+    noSubscribe,
+    () => new URLSearchParams(window.location.search).get("set"),
+    () => null,
+  );
   const [phase, setPhase] = useState(0);
   const [level, setLevel] = useState(0);
   const { state } = CYCLE[phase];
@@ -40,17 +52,22 @@ export function OrbPreview() {
       <p className="orb-preview-state" aria-live="polite">
         {state}
       </p>
-      <ul>
-        {(Object.keys(ORBS).map(Number) as OrbVariant[]).map((variant) => (
-          <li key={variant}>
-            <h2>
-              {variant} · {ORBS[variant].name}
-            </h2>
-            <VoiceOrb state={state} level={state === "listening" ? level : 0} variant={variant} />
-            <a href={`/?orb=${variant}`}>Use in the demo</a>
-          </li>
-        ))}
-      </ul>
+      {GROUPS.filter((group) => only !== "aurora" || group.variants === AURORA_OPTIONS).map((group) => (
+        <section key={group.title} aria-label={group.title}>
+          <h1 className="orb-preview-group">{group.title}</h1>
+          <ul>
+            {group.variants.map((variant) => (
+              <li key={variant}>
+                <h2>
+                  {variant} · {ORBS[variant].name}
+                </h2>
+                <VoiceOrb state={state} level={state === "listening" ? level : 0} variant={variant} />
+                <a href={`/?orb=${variant}`}>Use in the demo</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </main>
   );
 }

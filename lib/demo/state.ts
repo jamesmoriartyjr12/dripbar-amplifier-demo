@@ -1,6 +1,7 @@
 import { promotesQuestion, type SignalLevel } from "@/lib/amplifier/interpret";
 import { BASE_QUESTIONS, QUESTIONS, SIGNS, type QuestionId, type SignSlug } from "@/lib/amplifier/signs";
 import { OTHER_SYMPTOMS, type ProductId, type SymptomId } from "./content";
+import { recommend } from "./recommend";
 
 export type Scenario =
   | "voice-fatigue"
@@ -181,6 +182,12 @@ const BACK: Partial<Record<Step, Step>> = {
   confirm: "recommended",
 };
 
+function stillRecommended(state: DemoState, product: ProductId | null): ProductId | null {
+  if (!product) return null;
+  const { drips, ongoing } = recommend(state);
+  return [...drips, ...ongoing].some((rec) => rec.product.id === product) ? product : null;
+}
+
 const clearedAnswers = (state: DemoState) => ({ ...state.answers, questions: {} });
 
 export function reducer(state: DemoState, action: Action): DemoState {
@@ -227,9 +234,10 @@ export function reducer(state: DemoState, action: Action): DemoState {
     case "setNote":
       return { ...state, answers: { ...state.answers, note: action.note.slice(0, 500) } };
     case "submitQuestions":
-      return questionsComplete(state) ? { ...state, step: "recommended" } : state;
+      if (!questionsComplete(state)) return state;
+      return { ...state, step: "recommended", interest: stillRecommended(state, state.interest) };
     case "setInterest":
-      return { ...state, interest: action.product };
+      return { ...state, interest: stillRecommended(state, action.product) };
     case "continueToBooking":
       return state.step === "recommended" ? { ...state, step: "confirm", slot: state.slot ?? "11:40" } : state;
     case "requestVisit":

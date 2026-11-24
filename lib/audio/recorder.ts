@@ -36,23 +36,33 @@ export async function startRecording(): Promise<Recording> {
     throw new MicrophoneError("microphone unavailable", "No microphone could be opened.");
   }
 
-  const context = new AudioContext();
-  const source = context.createMediaStreamSource(stream);
-  const analyser = context.createAnalyser();
-  analyser.fftSize = 512;
-  const processor = context.createScriptProcessor(4096, 1, 1);
-  const silent = context.createGain();
-  silent.gain.value = 0;
+  let context: AudioContext | null = null;
+  let source: MediaStreamAudioSourceNode;
+  let analyser: AnalyserNode;
+  let processor: ScriptProcessorNode;
   let chunks: Float32Array[] = [];
+  try {
+    context = new AudioContext();
+    source = context.createMediaStreamSource(stream);
+    analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    processor = context.createScriptProcessor(4096, 1, 1);
+    const silent = context.createGain();
+    silent.gain.value = 0;
+    processor.onaudioprocess = (event) => {
+      chunks.push(new Float32Array(event.inputBuffer.getChannelData(0)));
+    };
+    source.connect(analyser);
+    source.connect(processor);
+    processor.connect(silent);
+    silent.connect(context.destination);
+  } catch {
+    stream.getTracks().forEach((track) => track.stop());
+    void context?.close().catch(() => undefined);
+    throw new MicrophoneError("audio setup failed", "This browser couldn't process the recording.");
+  }
+  const audioContext = context;
   const levelBuffer = new Uint8Array(analyser.fftSize);
-
-  processor.onaudioprocess = (event) => {
-    chunks.push(new Float32Array(event.inputBuffer.getChannelData(0)));
-  };
-  source.connect(analyser);
-  source.connect(processor);
-  processor.connect(silent);
-  silent.connect(context.destination);
 
   let released = false;
   const release = () => {
@@ -62,7 +72,7 @@ export async function startRecording(): Promise<Recording> {
     source.disconnect();
     processor.disconnect();
     stream.getTracks().forEach((track) => track.stop());
-    void context.close();
+    void audioContext.close();
   };
 
   return {
@@ -74,7 +84,7 @@ export async function startRecording(): Promise<Recording> {
       return Math.min(1, peak / 64);
     },
     async stop() {
-      const sampleRate = context.sampleRate;
+      const sampleRate = audioContext.sampleRate;
       release();
       const pcm = resample(mergeChunks(chunks), sampleRate);
       chunks = [];

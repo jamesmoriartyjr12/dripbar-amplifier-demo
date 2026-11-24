@@ -207,6 +207,21 @@ describe("booking and reset", () => {
     expect(booked).toMatchObject({ step: "booked", slot: "12:50", interest: "powerpack" });
   });
 
+  it("drops a selected product that is no longer recommended after answers change", () => {
+    const changed = run(
+      [
+        { type: "setInterest", product: "evolve" },
+        { type: "back" },
+        { type: "answer", question: "lowEnergy", value: false },
+        { type: "submitQuestions" },
+      ],
+      recommended,
+    );
+    expect(changed.interest).toBeNull();
+    const kept = run([{ type: "setInterest", product: "hydration" }, { type: "back" }, { type: "submitQuestions" }], recommended);
+    expect(kept.interest).toBe("hydration");
+  });
+
   it("reset returns to the landing page and keeps the scenario", () => {
     const state = run([{ type: "setScenario", scenario: "voice-stress" }, ...SAFE]);
     expect(reducer(state, { type: "reset" })).toMatchObject({ step: "landing", scenario: "voice-stress", slot: null });

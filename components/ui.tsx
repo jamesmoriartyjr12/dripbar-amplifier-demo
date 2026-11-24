@@ -118,6 +118,47 @@ export const Keyboard = () => (
   </svg>
 );
 
+export const Search = () => (
+  <svg {...iconProps} width={18} height={18}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="M16 16l4 4" />
+  </svg>
+);
+
+export const Plus = () => (
+  <svg {...iconProps} width={18} height={18}>
+    <path d="M12 6v12M6 12h12" />
+  </svg>
+);
+
+export const Grid = () => (
+  <svg {...iconProps} width={18} height={18} fill="currentColor" stroke="none">
+    <rect x="4.5" y="4.5" width="6" height="6" rx="1.6" />
+    <rect x="13.5" y="4.5" width="6" height="6" rx="1.6" />
+    <rect x="4.5" y="13.5" width="6" height="6" rx="1.6" />
+    <rect x="13.5" y="13.5" width="6" height="6" rx="1.6" />
+  </svg>
+);
+
+export const CheckSmall = () => (
+  <svg {...iconProps} width={14} height={14} strokeWidth={2.4}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </svg>
+);
+
+export const ChevronRight = () => (
+  <svg {...iconProps} width={16} height={16}>
+    <path d="M10 6l6 6-6 6" />
+  </svg>
+);
+
+export const Shield = () => (
+  <svg {...iconProps}>
+    <path d="M12 3.5l7 2.8v5.2c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6.3z" />
+    <path d="M9 12l2.2 2.2L15.5 10" />
+  </svg>
+);
+
 export const ChevronDown = () => (
   <svg {...iconProps}>
     <path d="M6 9l6 6 6-6" />

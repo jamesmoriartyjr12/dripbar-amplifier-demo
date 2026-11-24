@@ -11,8 +11,8 @@ import {
   SAMPLE_TRANSCRIPTS,
 } from "@/lib/demo/content";
 import { sampleVoiceRecord, scenarioInfo, type Action, type DemoState, type VoiceRecord } from "@/lib/demo/state";
-import { VoiceOrb, Waveform } from "../VoiceOrb";
-import { Close, Heading, Keyboard, Mic, Play, ScreenHead, Stop } from "../ui";
+import { VoiceOrb } from "../VoiceOrb";
+import { Close, Drip, Heading, Keyboard, Mic, Play, ScreenHead } from "../ui";
 
 interface Props {
   state: DemoState;
@@ -86,7 +86,6 @@ export function Consent({ state, dispatch }: Props) {
 }
 
 type Phase = "listening" | "thinking";
-const BARS = 28;
 
 function formatClock(seconds: number) {
   const whole = Math.min(99, Math.floor(seconds));
@@ -103,7 +102,6 @@ export function Capture({ state, dispatch }: Props) {
   const [phase, setPhase] = useState<Phase>("listening");
   const [elapsed, setElapsed] = useState(0);
   const [level, setLevel] = useState(0);
-  const [levels, setLevels] = useState<number[]>(() => Array(BARS).fill(0.08));
   const [status, setStatus] = useState("");
   const [micSource, setMicSource] = useState<MicSource>("pending");
   const recordingRef = useRef<Recording | null>(null);
@@ -123,7 +121,6 @@ export function Capture({ state, dispatch }: Props) {
     };
     const pushLevel = (value: number) => {
       setLevel(value);
-      setLevels((previous) => [...previous.slice(1), value]);
     };
     const showSimulatedResult = () => {
       stopRef.current = null;
@@ -255,79 +252,71 @@ export function Capture({ state, dispatch }: Props) {
   else if (micSource === "simulated") prompt = "No microphone available, so we're simulating this recording.";
   else prompt = "Start speaking… tell us how this morning is going.";
 
+  const heard = phase === "thinking" && mode === "sample" ? transcript : null;
+  const stopLabel = canStop ? "Stop recording" : live ? `Keep going, ${LIVE_MIN_SECONDS} seconds minimum` : "Recording";
+
   return (
     <section className="voice-screen" data-phase={phase} aria-labelledby="capture-title">
       <div className="voice-glow" />
-      <div className="screen-head" style={{ position: "relative" }}>
-        <span className={`label-tag${live ? " live" : ""}`}>{tag}</span>
-        <button
-          type="button"
-          className="icon-btn"
-          style={{ marginLeft: "auto" }}
-          onClick={() => dispatch({ type: "back" })}
-          aria-label="Cancel and go back"
-        >
-          <Close />
-        </button>
-      </div>
-
       <h1 id="capture-title" className="sr-only">
         {phase === "listening" ? "Listening" : "Choosing your next question"}
       </h1>
-      <p className="transcript" aria-live="off">
-        {mode !== "sample" || shownWords === 0 ? (
-          <span className="placeholder">{mode === "sample" ? "Start speaking…" : prompt}</span>
-        ) : (
-          <>
-            {words.slice(0, shownWords).join(" ")}{" "}
-            <span className="pending">{words.slice(shownWords).join(" ")}</span>
-          </>
-        )}
-      </p>
+      <div className="voice-top">
+        <p className={`transcript${heard || (phase === "thinking" && mode !== "sample") ? " heard" : ""}`} aria-live="off">
+          {heard ? (
+            heard
+          ) : mode !== "sample" || shownWords === 0 ? (
+            <span className={phase === "thinking" ? undefined : "placeholder"}>{mode === "sample" ? "Start speaking" : prompt}</span>
+          ) : (
+            <>
+              {words.slice(0, shownWords).join(" ")}{" "}
+              <span className="pending">{words.slice(shownWords).join(" ")}</span>
+            </>
+          )}
+        </p>
+        <button type="button" className="voice-close" onClick={() => dispatch({ type: "back" })} aria-label="Cancel and go back">
+          <Close />
+        </button>
+      </div>
+      <span className={`label-tag voice-tag${live ? " live" : ""}`}>{tag}</span>
 
       {phase === "thinking" ? (
-        <p className="thinking-line" role="status">
+        <div className="thinking-panel" role="status">
+          <p>{live && status ? `Analyzing (${status})…` : "Choosing your next question…"}</p>
           <span className="dots" aria-hidden="true">
             <i />
             <i />
+            <span className="dots-icon">
+              <Drip />
+            </span>
             <i />
           </span>
-          {live && status ? `Analyzing (${status})…` : "Choosing your next question…"}
-        </p>
+        </div>
       ) : null}
 
       <div className="voice-dock">
         <span className="state-label" role="status">
           {phase === "listening" ? (micSource === "pending" && mode !== "sample" ? "Starting" : "Listening") : "Thinking"}
         </span>
-        <VoiceOrb state={phase} level={phase === "listening" ? level : 0} />
-        {phase === "listening" ? (
-          <>
-            <Waveform levels={levels} />
-            <div className="progress" aria-hidden="true">
-              <i style={{ width: `${Math.min(100, (elapsed / clipSeconds) * 100)}%` }} />
-            </div>
-            <span className="timer" aria-label={`${Math.floor(elapsed)} of ${clipSeconds} seconds`}>
-              {formatClock(elapsed)} / {formatClock(clipSeconds)}
-            </span>
-            {mode === "mic" ? (
-              <button type="button" className="btn btn-stop" disabled={!canStop} onClick={() => stopRef.current?.()}>
-                <Stop /> Stop
-              </button>
-            ) : live ? (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={!canStop}
-                onClick={() => stopRef.current?.()}
-              >
-                {canStop ? "I'm done" : `Keep going (${LIVE_MIN_SECONDS} s minimum)`}
-              </button>
-            ) : null}
-          </>
+        {phase === "listening" && mode !== "sample" ? (
+          <button type="button" className="orb-stop" disabled={!canStop} aria-label={stopLabel} onClick={() => stopRef.current?.()}>
+            <VoiceOrb state="listening" level={level} />
+          </button>
         ) : (
-          <span className="timer">{mode === "mic" ? `${formatClock(elapsed)} recorded · audio discarded` : `${formatClock(clipSeconds)} recorded`}</span>
+          <VoiceOrb state={phase} level={phase === "listening" ? level : 0} />
         )}
+        <span className="timer" aria-label={`${Math.floor(elapsed)} of ${clipSeconds} seconds`}>
+          {phase === "listening"
+            ? `${formatClock(elapsed)} / ${formatClock(clipSeconds)}`
+            : mode === "mic"
+              ? `${formatClock(elapsed)} recorded · audio discarded`
+              : `${formatClock(clipSeconds)} recorded`}
+        </span>
+        {phase === "listening" && mode !== "sample" ? (
+          <span className="voice-hint" aria-hidden="true">
+            {canStop ? "Tap the orb to stop" : live ? `Keep going (${LIVE_MIN_SECONDS} s minimum)` : " "}
+          </span>
+        ) : null}
       </div>
     </section>
   );

@@ -38,6 +38,9 @@ export interface Product {
   priceNote: string;
   blurb: string;
   url: string;
+  /** Original generated product image in /public/products, 480 px square WebP on white. */
+  image: string;
+  alt: string;
 }
 
 export const PRODUCTS: Record<ProductId, Product> = {
@@ -49,6 +52,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
     priceNote: "Local list price",
     blurb: "A straightforward fluids-first IV drip.",
     url: "https://huntington-beach.thedripbar.com/services-menu/",
+    image: "/products/hydration.webp",
+    alt: "Clear IV drip bag filled with pale aqua fluid",
   },
   powerpack: {
     id: "powerpack",
@@ -58,6 +63,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
     priceNote: "Local list price",
     blurb: "A fuller IV option your clinician walks you through.",
     url: "https://huntington-beach.thedripbar.com/services-menu/",
+    image: "/products/powerpack.webp",
+    alt: "IV drip bag filled with iridescent amber-to-violet fluid",
   },
   evolve: {
     id: "evolve",
@@ -67,6 +74,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
     priceNote: "Pricing at the clinic",
     blurb: "For guests who'd like to come in regularly.",
     url: "https://huntington-beach.thedripbar.com/memberships/",
+    image: "/products/evolve.webp",
+    alt: "Frosted iridescent membership card",
   },
   supplements: {
     id: "supplements",
@@ -76,6 +85,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
     priceNote: "Discussed at your visit",
     blurb: "Help with an at-home routine between visits.",
     url: "https://thedripbar.com/services-menu/wellness-services/oral-supplements/",
+    image: "/products/supplements.webp",
+    alt: "Frosted supplement bottle beside amber and pink soft-gel capsules",
   },
 };
 

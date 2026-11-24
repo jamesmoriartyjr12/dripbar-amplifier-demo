@@ -1,11 +1,13 @@
 "use client";
 
-import type { Dispatch } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, type Dispatch } from "react";
 import { ISSUE_LABELS } from "@/lib/amplifier/interpret";
 import { QUESTIONS } from "@/lib/amplifier/signs";
 import { CLINIC, OTHER_SYMPTOMS, PRODUCTS, SLOTS, slotLabel } from "@/lib/demo/content";
 import { recommend, type Recommendation } from "@/lib/demo/recommend";
 import {
+  confirmedConcerns,
   intakeSummary,
   promotedQuestion,
   questionOrder,
@@ -13,7 +15,7 @@ import {
   type Action,
   type DemoState,
 } from "@/lib/demo/state";
-import { Check, Heading, ScreenHead, Stethoscope, YesNo } from "../ui";
+import { Check, CheckSmall, ChevronRight, Close, Heading, Plus, ScreenHead, Search, YesNo } from "../ui";
 
 interface Props {
   state: DemoState;
@@ -130,82 +132,204 @@ export function Questions({ state, dispatch }: Props) {
   );
 }
 
-function RecCard({ rec, state, dispatch }: { rec: Recommendation } & Props) {
-  const selected = state.interest === rec.product.id;
+function concernLine(concerns: string[]): string {
+  if (concerns.length === 0) return "";
+  if (concerns.length === 1) return concerns[0];
+  return `${concerns.slice(0, -1).join(", ")} and ${concerns[concerns.length - 1]}`;
+}
+
+function ProductCard({
+  rec,
+  state,
+  dispatch,
+  onOpen,
+  eager,
+}: { rec: Recommendation; onOpen: (rec: Recommendation) => void; eager?: boolean } & Props) {
+  const { product } = rec;
+  const selected = state.interest === product.id;
   return (
-    <article className={`rec${rec.featured ? " featured" : ""}`} aria-label={rec.product.name}>
-      {rec.featured ? <span className="label-tag" style={{ justifySelf: "start" }}>Best match for your answers</span> : null}
-      <div className="rec-head">
-        <div>
-          <h3 className="rec-name">{rec.product.name}</h3>
-          <p className="small" style={{ margin: "2px 0 0" }}>
-            {rec.product.blurb}
-          </p>
-        </div>
-        <div className="rec-price">
-          <strong>{rec.product.price}</strong>
-          <span>{rec.product.priceNote}</span>
-        </div>
+    <li className="pcard">
+      <div className="pcard-media">
+        <span className="pcard-brand" aria-hidden="true" />
+        {rec.featured ? <span className="pcard-flag">Top pick</span> : null}
+        <Image src={product.image} alt={product.alt} width={480} height={480} sizes="160px" priority={eager} />
+        <button
+          type="button"
+          className="pcard-add"
+          aria-pressed={selected}
+          aria-label={selected ? `Remove ${product.name} from my visit` : `Add ${product.name} to my visit`}
+          onClick={() => dispatch({ type: "setInterest", product: selected ? null : product.id })}
+        >
+          {selected ? <CheckSmall /> : <Plus />}
+        </button>
       </div>
-      <ul className="reasons">
-        {rec.reasons.map((reason) => (
-          <li key={reason}>{reason}</li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        className="interest"
-        aria-pressed={selected}
-        onClick={() => dispatch({ type: "setInterest", product: selected ? null : rec.product.id })}
-      >
-        {selected ? "Added to my visit" : "I'm interested"}
+      <button type="button" className="pcard-name rec-name" aria-haspopup="dialog" onClick={() => onOpen(rec)}>
+        {product.name}
       </button>
-    </article>
+      <p className="pcard-price">
+        <strong>{product.price}</strong>
+        <span>{product.kind === "drip" ? "List price" : "At your visit"}</span>
+      </p>
+      <p className="pcard-foot">
+        <span>
+          <small>Visit</small>
+          Today
+        </span>
+        <span className="pcard-badge">
+          <CheckSmall /> Clinician
+        </span>
+      </p>
+    </li>
+  );
+}
+
+function ProductSheet({
+  rec,
+  state,
+  dispatch,
+  onClose,
+}: { rec: Recommendation | null; onClose: () => void } & Props) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (rec && !dialog.open) dialog.showModal();
+    if (!rec && dialog.open) dialog.close();
+  }, [rec]);
+  const product = rec?.product;
+  const selected = product ? state.interest === product.id : false;
+  return (
+    <dialog
+      ref={ref}
+      className="sheet-dialog"
+      aria-labelledby="sheet-title"
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      {rec && product ? (
+        <div className="sheet-body">
+          <span className="sheet-handle" aria-hidden="true" />
+          <button type="button" className="icon-btn sheet-close" aria-label="Close details" onClick={onClose}>
+            <Close />
+          </button>
+          <div className="sheet-media">
+            <Image src={product.image} alt={product.alt} width={480} height={480} sizes="(max-width: 440px) 70vw, 300px" />
+          </div>
+          <h2 id="sheet-title" className="sheet-title">
+            {product.name}
+          </h2>
+          <p className="sheet-price">
+            <strong>{product.price}</strong> <span>{product.priceNote}</span>
+          </p>
+          <p className="sheet-blurb">{product.blurb}</p>
+          <h3 className="sheet-sub">Why it&apos;s here</h3>
+          <ul className="reasons">
+            {rec.reasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+          <p className="small" style={{ margin: "12px 0 0" }}>
+            Your clinician reviews your answers and decides whether it&apos;s right for you.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            style={{ marginTop: 16 }}
+            aria-pressed={selected}
+            onClick={() => dispatch({ type: "setInterest", product: selected ? null : product.id })}
+          >
+            {selected ? "Added to my visit" : "Add to my visit"}
+          </button>
+        </div>
+      ) : null}
+    </dialog>
   );
 }
 
 export function Recommended({ state, dispatch }: Props) {
   const { drips, ongoing } = recommend(state);
+  const [open, setOpen] = useState<Recommendation | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const concerns = confirmedConcerns(state);
+  const top = drips[0];
+  const openSheet = (rec: Recommendation) => {
+    opener.current = document.activeElement as HTMLElement | null;
+    setOpen(rec);
+  };
+  const closeSheet = () => {
+    setOpen(null);
+    opener.current?.focus();
+  };
   return (
-    <section className="screen">
+    <section className="screen results">
       <ScreenHead onBack={() => dispatch({ type: "back" })} step="Step 4 of 4" />
-      <p className="eyebrow">Recommended for you</p>
-      <Heading>Here&apos;s what may help today</Heading>
-      <div className="clinician-note">
-        <Stethoscope />
-        <span>
-          <strong>A clinician confirms at your visit.</strong> They&apos;ll review your answers and may suggest something
-          different.
-        </span>
-      </div>
-
-      <h2 className="section-title">IV drips</h2>
-      <div className="stack">
-        {drips.map((rec) => (
-          <RecCard key={rec.product.id} rec={rec} state={state} dispatch={dispatch} />
-        ))}
-      </div>
-
-      {ongoing.length ? (
-        <>
-          <h2 className="section-title">Between visits</h2>
-          <div className="stack">
-            {ongoing.map((rec) => (
-              <RecCard key={rec.product.id} rec={rec} state={state} dispatch={dispatch} />
-            ))}
-          </div>
-        </>
-      ) : null}
-
-      <p className="small" style={{ marginTop: 14 }}>
-        Prices are local list prices at {CLINIC.name}, subject to clinician assessment.
+      <p className="query-pill">
+        <Search />
+        <span>{concerns.length ? `Help with ${concernLine(concerns)}` : "Help me feel better today"}</span>
       </p>
-      <div className="actions">
+
+      <div className="sheet">
+        <span className="sheet-handle" aria-hidden="true" />
+        <div className="shelf shelf-lead">
+          <div className="shelf-head">
+            <div>
+              <Heading className="shelf-title">Recommended for you</Heading>
+              <p className="shelf-desc">
+                {concerns.length ? `Picked for your ${concernLine(concerns)}. ` : "Picked from your answers. "}
+                A clinician confirms at your visit.
+              </p>
+            </div>
+            <button type="button" className="shelf-more" aria-label={`More about ${top.product.name}`} onClick={() => openSheet(top)}>
+              <ChevronRight />
+            </button>
+          </div>
+          <ul className="carousel" aria-label="IV drips">
+            {drips.map((rec, index) => (
+              <ProductCard key={rec.product.id} rec={rec} state={state} dispatch={dispatch} onOpen={openSheet} eager={index < 2} />
+            ))}
+          </ul>
+        </div>
+
+        {ongoing.length ? (
+          <div className="shelf">
+            <h2 className="shelf-title">Between visits</h2>
+            <ul className="carousel" aria-label="Between visits">
+              {ongoing.map((rec) => (
+                <ProductCard key={rec.product.id} rec={rec} state={state} dispatch={dispatch} onOpen={openSheet} />
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <p className="small sheet-note">Prices are local list prices at {CLINIC.name}, subject to clinician assessment.</p>
+      </div>
+
+      <div className="actions results-actions">
         <button type="button" className="btn btn-primary btn-block" onClick={() => dispatch({ type: "continueToBooking" })}>
           Book my visit
         </button>
       </div>
+      <ProductSheet rec={open} state={state} dispatch={dispatch} onClose={closeSheet} />
     </section>
+  );
+}
+
+function VisitItem({ state }: { state: DemoState }) {
+  if (!state.interest) return null;
+  const product = PRODUCTS[state.interest];
+  return (
+    <div className="notify" style={{ marginBottom: 14 }}>
+      <span className="notify-thumb">
+        <Image src={product.image} alt={product.alt} width={48} height={48} />
+      </span>
+      <span className="notify-body">
+        <strong>{product.name}</strong>
+        <span>To discuss with your clinician</span>
+      </span>
+      <span className="price">{product.price}</span>
+    </div>
   );
 }
 
@@ -219,6 +343,7 @@ export function Booking({ state, dispatch }: Props) {
       <ScreenHead onBack={() => dispatch({ type: "back" })} />
       <p className="eyebrow">Book your visit</p>
       <Heading>Pick your time</Heading>
+      <VisitItem state={state} />
       <div className="slots" role="radiogroup" aria-label="Today's visit times">
         {SLOTS.map((slot) => (
           <button
@@ -277,6 +402,7 @@ export function Booked({ state, dispatch }: Props) {
       </span>
       <Heading>You&apos;re booked for {slotLabel(state.slot)}</Heading>
       <p className="lede">No appointment was made and nothing was charged. This confirmation is part of the demo.</p>
+      <VisitItem state={state} />
       <div className="card" style={{ padding: "6px 18px" }}>
         <ul className="summary-list">
           <li>

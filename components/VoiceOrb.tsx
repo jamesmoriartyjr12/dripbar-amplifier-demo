@@ -14,6 +14,8 @@ export function VoiceOrb({ state, level = 0, small = false }: { state: OrbState;
     >
       {small ? null : (
         <>
+          <span className="orb-ripple r3" />
+          <span className="orb-ripple r2" />
           <span className="orb-halo h2" />
           <span className="orb-halo" />
         </>
@@ -25,16 +27,6 @@ export function VoiceOrb({ state, level = 0, small = false }: { state: OrbState;
           ))}
         </span>
       </span>
-    </div>
-  );
-}
-
-export function Waveform({ levels }: { levels: number[] }) {
-  return (
-    <div className="waveform" aria-hidden="true">
-      {levels.map((value, index) => (
-        <span key={index} style={{ height: `${Math.max(8, Math.min(100, value * 100))}%` }} />
-      ))}
     </div>
   );
 }

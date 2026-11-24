@@ -94,22 +94,32 @@ export function DemoApp() {
     <div className="stage">
       <Ribbons />
       <div className="device" data-step={state.step}>
-        <header className="topbar">
-          <span className="wordmark">
-            <span className="wordmark-drop" aria-hidden="true" />
-            <span>
-              The <b>DRIPBaR</b>
+        <div className="statusbar" aria-hidden="true">
+          <span>9:41</span>
+          <span className="statusbar-icons">
+            <i className="sb-signal" />
+            <i className="sb-wifi" />
+            <i className="sb-battery" />
+          </span>
+        </div>
+        {state.step === "capture" ? null : (
+          <header className="topbar">
+            <span className="wordmark">
+              <span className="wordmark-drop" aria-hidden="true" />
+              <span>
+                The <b>DRIPBaR</b>
+              </span>
             </span>
-          </span>
-          <span className={`pill${state.liveEnabled ? " pill-live" : ""}`}>
-            <span className="pill-dot" aria-hidden="true" />
-            {state.liveEnabled ? "Live analysis on" : "Demo mode"}
-          </span>
-        </header>
+            <span className={`pill${state.liveEnabled ? " pill-live" : ""}`}>
+              <span className="pill-dot" aria-hidden="true" />
+              {state.liveEnabled ? "Live analysis on" : "Demo mode"}
+            </span>
+          </header>
+        )}
         <main key={state.step} className="main">
           {screen}
         </main>
-        <footer className="footnote">
+        <footer className="footnote" hidden={state.step === "capture"}>
           Demo: sample appointments and a simulated booking.
           {state.step !== "landing" ? (
             <>

@@ -92,7 +92,8 @@ export function DemoApp() {
 
   return (
     <div className="stage">
-      <div className="device">
+      <Ribbons />
+      <div className="device" data-step={state.step}>
         <header className="topbar">
           <span className="wordmark">
             <span className="wordmark-drop" aria-hidden="true" />
@@ -121,5 +122,60 @@ export function DemoApp() {
         </footer>
       </div>
     </div>
+  );
+}
+
+const STRANDS = [-48, -32, -16, 0, 16, 32, 48];
+
+/** Pearl ribbons behind the phone on wide screens; purely decorative. */
+function Ribbons() {
+  return (
+    <svg className="ribbons" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="rib-a" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
+          <stop offset="0.45" stopColor="#cfd5de" stopOpacity="0.7" />
+          <stop offset="0.7" stopColor="#d9f3ff" stopOpacity="0.8" />
+          <stop offset="1" stopColor="#f6e6f6" stopOpacity="0.6" />
+        </linearGradient>
+        <linearGradient id="rib-b" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c9f2e6" stopOpacity="0.7" />
+          <stop offset="0.4" stopColor="#ffffff" stopOpacity="0.9" />
+          <stop offset="0.75" stopColor="#c8cfdb" stopOpacity="0.6" />
+          <stop offset="1" stopColor="#e9dcf7" stopOpacity="0.7" />
+        </linearGradient>
+        <filter id="rib-soft">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+      </defs>
+      <g fill="none" strokeLinecap="round" filter="url(#rib-soft)">
+        <path d="M-80 260 C 260 80, 520 520, 820 360 S 1340 80, 1700 300" stroke="url(#rib-a)" strokeWidth="120" />
+        <path d="M-60 820 C 240 560, 560 980, 900 720 S 1400 520, 1700 760" stroke="url(#rib-b)" strokeWidth="150" />
+        <path d="M1240 -60 C 1080 260, 1500 420, 1300 700 S 1180 980, 1420 1080" stroke="url(#rib-a)" strokeWidth="90" />
+        <path d="M300 -80 C 160 200, 520 360, 360 620 S 220 900, 420 1080" stroke="url(#rib-b)" strokeWidth="80" />
+      </g>
+      <g fill="none" stroke="#ffffff" strokeWidth="1.4">
+        {STRANDS.map((offset) => (
+          <g
+            key={offset}
+            transform={`translate(0 ${offset})`}
+            stroke={offset % 32 === 0 ? "#ffffff" : "#b9c1cc"}
+            strokeOpacity={0.85 - Math.abs(offset) / 100}
+          >
+            <path d="M-80 260 C 260 80, 520 520, 820 360 S 1340 80, 1700 300" />
+            <path d="M-60 820 C 240 560, 560 980, 900 720 S 1400 520, 1700 760" />
+          </g>
+        ))}
+        {STRANDS.map((offset) => (
+          <path
+            key={`v${offset}`}
+            transform={`translate(${offset} 0)`}
+            stroke={offset % 32 === 0 ? "#ffffff" : "#b9c1cc"}
+            strokeOpacity={0.8 - Math.abs(offset) / 100}
+            d="M1240 -60 C 1080 260, 1500 420, 1300 700 S 1180 980, 1420 1080"
+          />
+        ))}
+      </g>
+    </svg>
   );
 }

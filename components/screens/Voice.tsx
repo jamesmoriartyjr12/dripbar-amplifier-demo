@@ -34,7 +34,7 @@ export function Intake({ state, dispatch }: Props) {
       >
         <VoiceOrb state="idle" />
         <span className="talk-label">
-          <Mic /> Tap to talk
+          <Mic /> <span>Tap to talk</span>
         </span>
       </button>
       <p id="talk-hint" className="talk-hint">

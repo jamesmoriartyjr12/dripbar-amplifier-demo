@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type Dispatch } from "react";
 import { PRODUCTS, SLOTS } from "@/lib/demo/content";
 import type { Action, DemoState, SafetyAnswers } from "@/lib/demo/state";
 import { VoiceOrb } from "../VoiceOrb";
-import { Heading, ScreenHead, Stethoscope, YesNo } from "../ui";
+import { ArrowRight, ChevronDown, Drip, Heading, ScreenHead, Stethoscope, YesNo } from "../ui";
 
 interface Props {
   state: DemoState;
@@ -21,27 +21,25 @@ export function Landing({ dispatch }: Props) {
 
   return (
     <section className="screen landing" aria-labelledby="landing-title">
-      <div className="landing-hero">
-        <p className="eyebrow">Sunday · Huntington Beach</p>
-        <div className="landing-orb">
-          <VoiceOrb state="idle" />
-        </div>
+      <div className="notify">
+        <span className="notify-thumb" aria-hidden="true">
+          <Drip />
+        </span>
+        <span className="notify-body">
+          <strong>{PRODUCTS.hydration.name}</strong>
+          <span>Local list price at The DRIPBaR Huntington Beach, subject to clinician assessment.</span>
+        </span>
+        <span className="price">{PRODUCTS.hydration.price}</span>
       </div>
-      <Heading className="display">Feeling rough this morning?</Heading>
-      <p className="lede">
+
+      <div className="landing-space" />
+
+      <p className="eyebrow">Sunday · Huntington Beach</p>
+      <Heading id="landing-title" className="display">Feeling rough this morning?</Heading>
+      <p className="lede" style={{ marginBottom: 0 }}>
         Tell us how you feel, by voice or by typing. We&apos;ll suggest options, and a clinician confirms everything at
         your visit.
       </p>
-
-      <div className="card">
-        <div className="price-line">
-          <strong>{PRODUCTS.hydration.name}</strong>
-          <span className="price">{PRODUCTS.hydration.price}</span>
-        </div>
-        <p className="small" style={{ margin: "4px 0 0" }}>
-          Local list price at The DRIPBaR Huntington Beach, subject to clinician assessment.
-        </p>
-      </div>
 
       {showTimes ? (
         <div>
@@ -64,31 +62,37 @@ export function Landing({ dispatch }: Props) {
           <p className="small">Pick a time now. You don&apos;t need to choose a drip yet.</p>
         </div>
       ) : (
-        <ol className="how" aria-label="How it works">
-          <li>
-            <b>1</b>
-            <span>A quick safety check</span>
-          </li>
-          <li>
-            <b>2</b>
-            <span>Tap to talk: tell us how you feel in about 22 seconds</span>
-          </li>
-          <li>
-            <b>3</b>
-            <span>See options a clinician confirms at your visit</span>
-          </li>
-        </ol>
-      )}
-
-      {showTimes ? null : (
-        <div className="actions">
-          <button type="button" className="btn btn-primary btn-block" onClick={() => setShowTimes(true)}>
-            Check today&apos;s times
-          </button>
-          <p className="small" style={{ margin: 0, textAlign: "center" }}>
-            Next: pick a time, a quick safety check, then tap to talk.
-          </p>
-        </div>
+        <>
+          <ol className="how" aria-label="How it works">
+            <li>
+              <b>1</b>
+              <span>A quick safety check</span>
+            </li>
+            <li>
+              <b>2</b>
+              <span>Tap to talk: tell us how you feel in about 22 seconds</span>
+            </li>
+            <li>
+              <b>3</b>
+              <span>See options a clinician confirms at your visit</span>
+            </li>
+          </ol>
+          <span className="landing-more" aria-hidden="true">
+            <ChevronDown />
+          </span>
+          <div className="actions" style={{ paddingTop: 8 }}>
+            <button type="button" className="composer" onClick={() => setShowTimes(true)}>
+              <VoiceOrb state="idle" small />
+              <span className="composer-text">Check today&apos;s times</span>
+              <span className="composer-end" aria-hidden="true">
+                <ArrowRight />
+              </span>
+            </button>
+            <p className="small" style={{ margin: 0, textAlign: "center" }}>
+              Next: pick a time, a quick safety check, then tap to talk.
+            </p>
+          </div>
+        </>
       )}
     </section>
   );

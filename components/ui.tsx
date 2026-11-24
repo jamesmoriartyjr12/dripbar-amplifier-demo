@@ -3,14 +3,24 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 /** Each step's heading takes focus on arrival so keyboard and screen-reader users land on the new content. */
-export function Heading({ children, className = "title", level = 1 }: { children: ReactNode; className?: string; level?: 1 | 2 }) {
+export function Heading({
+  children,
+  className = "title",
+  level = 1,
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  level?: 1 | 2;
+  id?: string;
+}) {
   const ref = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     ref.current?.focus({ preventScroll: false });
   }, []);
   const Tag = level === 1 ? "h1" : "h2";
   return (
-    <Tag ref={ref} tabIndex={-1} className={className}>
+    <Tag ref={ref} id={id} tabIndex={-1} className={className}>
       {children}
     </Tag>
   );
@@ -105,6 +115,19 @@ export const Keyboard = () => (
   <svg {...iconProps}>
     <rect x="3" y="6" width="18" height="12" rx="2.5" />
     <path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10" />
+  </svg>
+);
+
+export const ChevronDown = () => (
+  <svg {...iconProps}>
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+
+export const Drip = () => (
+  <svg {...iconProps} width={24} height={24}>
+    <path d="M12 3.5c3 3.6 5.5 6.9 5.5 10a5.5 5.5 0 01-11 0c0-3.1 2.5-6.4 5.5-10z" />
+    <path d="M9.5 14.5a2.5 2.5 0 002.5 2.5" />
   </svg>
 );
 

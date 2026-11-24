@@ -13,6 +13,8 @@ export interface DripLocation {
   lat: number;
   lng: number;
   url: string;
+  /** Small OpenStreetMap thumbnail built by scripts/build-location-maps.mjs. */
+  map: string;
   prices: Record<PricedItem, number>;
 }
 
@@ -32,6 +34,7 @@ function location(
     lat,
     lng,
     url: `https://thedripbar.com/locations/${id}/`,
+    map: `/maps/${id}.webp`,
     prices,
   };
 }
@@ -69,7 +72,7 @@ export const LOCATIONS: DripLocation[] = [
     -80.132872,
     { hydration: 99, powerpack: 199, b12: 25, "tri-immune": 35, "b-complex": 25, "im-supercharged": 50 },
   ),
-  location("greensboro", "Greensboro", "1004 Gardner Hill Drive, Jamestown, NC 27282", 36.00207, -79.910999, {
+  location("greensboro", "Greensboro", "1004 Gardner Hill Drive, Suite C, Jamestown, NC 27282", 36.00207, -79.910999, {
     hydration: 99,
     powerpack: 199,
     b12: 25,

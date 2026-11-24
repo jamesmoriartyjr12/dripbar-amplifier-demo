@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { QUESTIONS, SIGNS } from "@/lib/amplifier/signs";
 import { recommend } from "@/lib/demo/recommend";
@@ -266,6 +268,14 @@ describe("nearest location and add-ons", () => {
     expect(productPrice(PRODUCTS.evolve, currentLocation(reno))).toBe("Membership");
     expect(productPrice(PRODUCTS.hydration, DEFAULT_LOCATION)).toBe(PRODUCTS.hydration.price);
     for (const loc of LOCATIONS) for (const addOn of ADD_ONS) expect(loc.prices[addOn.priceKey]).toBeGreaterThan(0);
+  });
+
+  it("gives every location a street address and a bundled map thumbnail", () => {
+    for (const loc of LOCATIONS) {
+      expect(loc.address).toMatch(/^\d+\w* .+, .+, [A-Z]{2} \d{5}$/);
+      expect(loc.map).toBe(`/maps/${loc.id}.webp`);
+      expect(existsSync(join(process.cwd(), "public", loc.map))).toBe(true);
+    }
   });
 
   it("toggles add-ons, clears them on reset, and keeps the location", () => {

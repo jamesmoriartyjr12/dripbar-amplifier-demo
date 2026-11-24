@@ -52,6 +52,7 @@ Customer copy never names a sign or says the voice found anything. Recommendatio
 
 - `lib/demo/locations.ts` lists seven real DRIPBaR locations with addresses, coordinates and list prices taken from each location's page on thedripbar.com (schema.org data, Nov 24, 2026). Drip and add-on prices follow the chosen location.
 - `public/brand/dripbar-logo.svg` and `dripbar-mark.svg` are vector traces of The DRIPBaR's official logo files (`/brand/logo.png` and the site icon on thedripbar.com), which the site publishes only as raster images.
+- `public/maps/` holds a small map thumbnail per location, cut from OpenStreetMap tiles by `node scripts/build-location-maps.mjs` (rerun it after adding a location). The images ship with the app, so the landing needs no map key or network. If a thumbnail is missing, a plain street-grid placeholder with the pin shows instead. Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright); the © on each thumbnail links there.
 - Product and add-on images in `public/products/` are original generated images.
 
 ## Optional: live Amplifier analysis

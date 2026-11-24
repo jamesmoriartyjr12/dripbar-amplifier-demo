@@ -14,6 +14,7 @@ interface Props {
 
 export function Landing({ state, dispatch }: Props) {
   const [showTimes, setShowTimes] = useState(false);
+  const [failedMap, setFailedMap] = useState<string | null>(null);
   const timesRef = useRef<HTMLHeadingElement>(null);
   const location = currentLocation(state);
 
@@ -24,12 +25,35 @@ export function Landing({ state, dispatch }: Props) {
   return (
     <section className="screen landing" aria-labelledby="landing-title">
       <div className="notify">
-        <span className="notify-thumb">
-          <Image src={PRODUCTS.hydration.image} alt={PRODUCTS.hydration.alt} width={48} height={48} priority />
+        <span className="notify-thumb map-thumb">
+          {failedMap !== location.id && (
+            <Image
+              key={location.id}
+              src={location.map}
+              alt={`Map showing ${location.name}`}
+              width={56}
+              height={56}
+              priority
+              unoptimized
+              onError={() => setFailedMap(location.id)}
+            />
+          )}
+          <span className="map-pin" aria-hidden="true" />
+          <a
+            className="map-credit"
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Map data © OpenStreetMap contributors (opens in a new tab)"
+            title="Map data © OpenStreetMap contributors"
+          >
+            ©
+          </a>
         </span>
         <span className="notify-body">
           <strong>{PRODUCTS.hydration.name}</strong>
           <span className="notify-loc">{location.name}</span>
+          <span className="notify-address">{location.address}</span>
         </span>
         <span className="price">{productPrice(PRODUCTS.hydration, location)}</span>
       </div>
@@ -39,6 +63,7 @@ export function Landing({ state, dispatch }: Props) {
       <Heading id="landing-title" className="display">
         How are you feeling?
       </Heading>
+      <p className="lede landing-sub">We can tell how dehydrated you are from your voice.</p>
 
       {showTimes ? (
         <div>
@@ -62,8 +87,6 @@ export function Landing({ state, dispatch }: Props) {
         </div>
       ) : (
         <>
-          <h2 className="addons-title">Add a quick shot</h2>
-          <p className="addons-note">Your clinician confirms add-ons at your visit.</p>
           <ul className="addons" aria-label="Quick shot add-ons">
             {ADD_ONS.map((addOn) => {
               const added = state.addOns.includes(addOn.id);
